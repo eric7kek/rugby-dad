@@ -55,8 +55,9 @@ header{background:var(--bg1);border-bottom:1px solid var(--border);padding:12px 
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--bg1);border-top:1px solid var(--border);display:flex;z-index:200}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text3);font-size:9px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border:none;background:none;transition:color .2s;padding:8px 0}
 .nav-btn.active{color:var(--green)}
-.nav-btn .nav-icon{font-size:18px;line-height:1}
-.nav-btn.active .nav-icon{filter:drop-shadow(0 0 6px var(--green))}
+.nav-btn .nav-icon{font-size:18px;line-height:1;font-style:normal}
+.nav-svg{font-family:var(--font-mono);font-size:16px;font-style:normal}
+.nav-btn.active .nav-svg{color:var(--green);text-shadow:0 0 8px var(--green)}
 
 /* MAIN */
 main{max-width:600px;margin:0 auto;padding:16px}
@@ -269,7 +270,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Rugby <span>Dad</span></div>
+  <div class="logo" style="display:flex;align-items:center;gap:10px">Rugby <span>Dad</span>
+    <button onclick="openSetupModal()" style="background:none;border:1px solid var(--border);border-radius:5px;padding:4px 8px;color:var(--text3);cursor:pointer;font-size:11px;font-family:var(--font-mono);letter-spacing:.04em" title="Settings">⚙ Setup</button>
+  </div>
   <div class="header-kpis" id="headerKpis">
     <div class="kpi"><div class="kpi-val" id="hdr-weight">289</div><div class="kpi-label">lbs</div></div>
     <div class="kpi"><div class="kpi-val" id="hdr-lost" style="color:var(--green)">0</div><div class="kpi-label">lost</div></div>
@@ -300,10 +303,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
   <!-- KPI ROW -->
   <div class="section-label">Key Numbers</div>
-  <div class="g3" style="margin-bottom:12px">
+  <div class="g3" style="margin-bottom:8px">
     <div class="infograph">
       <div class="infograph-val green" id="dash-weight">289</div>
-      <div class="infograph-label">lbs</div>
+      <div class="infograph-label">lbs now</div>
       <div class="infograph-sub" id="dash-lost-sub">Start: 289</div>
     </div>
     <div class="infograph">
@@ -316,6 +319,12 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="infograph-label">Week streak</div>
       <div class="infograph-sub">4+ sessions/wk</div>
     </div>
+  </div>
+
+  <!-- QUICK WEIGHT LOG -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+    <input type="number" id="dash-weight-input" placeholder="Log Monday weight (lbs)" step="0.1" style="flex:1;font-size:14px">
+    <button class="btn btn-green" onclick="logWeightDash()" style="white-space:nowrap;flex-shrink:0">✓ Log</button>
   </div>
 
   <!-- WEEKLY HABIT SCORE -->
@@ -533,19 +542,19 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="switchPanel('dashboard',this)">
-    <span class="nav-icon">⚡</span>Dashboard
+    <span class="nav-icon nav-svg">◈</span>Dashboard
   </button>
   <button class="nav-btn" onclick="switchPanel('plan',this)">
-    <span class="nav-icon">📋</span>Plan
+    <span class="nav-icon nav-svg">≡</span>Plan
   </button>
   <button class="nav-btn" onclick="switchPanel('workouts',this)">
-    <span class="nav-icon">🏋️</span>Sessions
+    <span class="nav-icon nav-svg">▲</span>Sessions
   </button>
   <button class="nav-btn" onclick="switchPanel('garmin',this)">
-    <span class="nav-icon">📊</span>Garmin
+    <span class="nav-icon nav-svg">◉</span>Garmin
   </button>
   <button class="nav-btn" onclick="switchPanel('checkin',this)">
-    <span class="nav-icon">✅</span>Check-in
+    <span class="nav-icon nav-svg">◆</span>Check-in
   </button>
 </nav>
 
@@ -607,12 +616,44 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 </div>
 
 <!-- TOAST -->
+<!-- SETUP MODAL -->
+<div class="modal-overlay" id="modal-setup" onclick="closeModalOutside(event,'modal-setup')">
+  <div class="modal">
+    <div class="modal-title" style="flex-direction:column;align-items:flex-start;gap:4px">
+      <span>Program Setup</span>
+      <span style="font-size:12px;color:var(--text2);font-family:var(--font-body);font-weight:400;letter-spacing:0">Set your start date and starting weight. This drives the phase tracker, day counter, and heatmap.</span>
+    </div>
+    <div class="field">
+      <label>Program Start Date</label>
+      <input type="date" id="setup-start-date">
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">The Monday you started training. Defaults to Apr 7, 2025.</div>
+    </div>
+    <div class="field">
+      <label>Starting Weight (lbs)</label>
+      <input type="number" id="setup-start-weight" placeholder="289">
+    </div>
+    <div style="background:var(--blue-dim);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;font-size:11px;color:var(--text2);line-height:1.6">
+      💡 Your data (sessions, habits, Garmin weeks, weight log) is saved separately and <strong>will not be cleared</strong> when you change these settings.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-setup')" style="justify-content:center">Cancel</button>
+      <button class="btn btn-green" onclick="saveSetup()" style="justify-content:center">Save Settings</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════ DATA ══
-const START_WEIGHT = 289;
-const START_DATE = new Date('2025-04-07');
+// ── USER-CONFIGURABLE CONSTANTS (stored in localStorage) ──
+function getStartWeight() { return parseFloat(S.get('userStartWeight') || 289); }
+function getStartDate() {
+  const stored = S.get('userStartDate');
+  return stored ? new Date(stored + 'T00:00:00') : new Date('2025-04-07T00:00:00');
+}
+// Legacy shims so existing code still works
+const START_WEIGHT = 289; // used only as fallback default
 
 const WORKOUTS = [
   {
@@ -773,7 +814,7 @@ function toast(msg, color='var(--green)') {
 
 // ═══════════════════════════════════════════════════════════════ PHASE ══
 function updatePhase() {
-  const weeks = Math.max(0, Math.floor((new Date() - START_DATE)/(7*24*60*60*1000)));
+  const weeks = Math.max(0, Math.floor((new Date() - getStartDate())/(7*24*60*60*1000)));
   let p, title, sub, wip, pw;
   if(weeks < 12){p=1;title='Foundation';sub='Months 1–3 · Build the habit · Find working weights';wip=weeks;pw=12;}
   else if(weeks < 26){p=2;title='Build';sub='Months 4–6 · Strength rising · Add pull-ups + intervals';wip=weeks-12;pw=14;}
@@ -792,16 +833,16 @@ function updatePhase() {
 function updateHeader() {
   const weights = S.get('weights') || [];
   const sessions = S.get('sessions') || [];
-  const current = weights.length ? weights[0].weight : START_WEIGHT;
-  const lost = Math.max(0, START_WEIGHT - current);
-  const weeks = Math.max(0, Math.floor((new Date()-START_DATE)/(7*24*60*60*1000)));
+  const current = weights.length ? weights[0].weight : getStartWeight();
+  const lost = Math.max(0, getStartWeight() - current);
+  const weeks = Math.max(0, Math.floor((new Date()-getStartDate())/(7*24*60*60*1000)));
   document.getElementById('hdr-weight').textContent = current;
   document.getElementById('hdr-lost').textContent = lost.toFixed(1);
   document.getElementById('hdr-weeks').textContent = weeks;
   document.getElementById('hdr-sessions').textContent = sessions.length;
   document.getElementById('dash-weight').textContent = current;
   document.getElementById('dash-sessions').textContent = sessions.length;
-  const lostSub = lost > 0 ? `↓ ${lost.toFixed(1)} lbs lost` : `Goal: 200–225 lbs`;
+  const lostSub = lost > 0 ? `↓ ${lost.toFixed(1)} lbs lost (started ${getStartWeight()} lbs)` : `Goal: 200–225 lbs`;
   document.getElementById('dash-lost-sub').textContent = lostSub;
   // streak
   const streak = calcStreak(sessions);
@@ -905,7 +946,7 @@ function saveDeferDate(key, val) {
 
 // ═══════════════════════════════════════════════════════════════ PROGRAM TRACKER ══
 function renderProgramTracker() {
-  const dayNum = Math.max(1, Math.floor((new Date() - START_DATE)/(24*60*60*1000)) + 1);
+  const dayNum = Math.max(1, Math.floor((new Date() - getStartDate())/(24*60*60*1000)) + 1);
   const weekNum = Math.ceil(dayNum/7);
   const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const dayTypes = {0:'Rest',1:'Lower Body',2:'Push',3:'Cardio',4:'Pull',5:'Hinge',6:'Walk'};
@@ -943,7 +984,7 @@ function renderHeatmap() {
   startDay.setDate(startDay.getDate() - (dow === 0 ? 6 : dow - 1));
   const cols = [];
   let d = new Date(startDay);
-  const progStart = new Date(START_DATE); progStart.setHours(0,0,0,0);
+  const progStart = new Date(getStartDate()); progStart.setHours(0,0,0,0);
   const todayStr = today.toISOString().split('T')[0];
   while(d <= today) {
     const weekCells = [];
@@ -1059,7 +1100,7 @@ function resetHabits() { saveAndNewWeek(); }
 // ═══════════════════════════════════════════════════════════════ MILESTONES ══
 function renderMilestones() {
   const weights = S.get('weights') || [];
-  const current = weights.length ? weights[0].weight : START_WEIGHT;
+  const current = weights.length ? weights[0].weight : getStartWeight();
   const ms = [{id:'ms1',target:272},{id:'ms2',target:255},{id:'ms3',target:235},{id:'ms4',target:215}];
   ms.forEach(m => {
     const el = document.getElementById(m.id);
@@ -1246,8 +1287,8 @@ function renderCheckin() {
   const habitPct = Math.round(habitDone/10*100);
 
   // Summary cards
-  const current = weights.length ? weights[0].weight : START_WEIGHT;
-  const lost = Math.max(0, START_WEIGHT - current);
+  const current = weights.length ? weights[0].weight : getStartWeight();
+  const lost = Math.max(0, getStartWeight() - current);
   const thisWeekSessions = getThisWeekSessions(sessions);
 
   document.getElementById('ci-summary').innerHTML = `
@@ -1313,7 +1354,7 @@ function generateCheckin() {
   const sleep = document.getElementById('ci-sleep').value;
   const notes = document.getElementById('ci-notes').value;
   const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  const lost = weight ? (START_WEIGHT - parseFloat(weight)).toFixed(1) : '—';
+  const lost = weight ? (getStartWeight() - parseFloat(weight)).toFixed(1) : '—';
   const sessLines = thisWeekSessions.length
     ? thisWeekSessions.map(s=>`  ${s.date} — ${s.type}${s.duration?' ('+s.duration+'min)':''}${s.url?' [Garmin: '+s.url+']':''}`).join('\n')
     : '  No sessions logged this week';
@@ -1339,7 +1380,53 @@ ${sessLines}
     </div>`;
 }
 
+// ═══════════════════════════════════════════════════════════════ WEIGHT LOG ══
+function logWeightDash() {
+  const inp = document.getElementById('dash-weight-input');
+  const val = parseFloat(inp.value);
+  if(isNaN(val) || val < 100 || val > 500) { toast('Enter a valid weight (lbs)', 'var(--red)'); return; }
+  const weights = S.get('weights') || [];
+  weights.unshift({date: new Date().toISOString().split('T')[0], weight: val});
+  S.set('weights', weights.slice(0,52));
+  inp.value = '';
+  updateHeader();
+  renderMilestones();
+  renderCheckin();
+  toast(`✓ ${val} lbs logged!`);
+}
+
+// ═══════════════════════════════════════════════════════════════ SETUP ══
+function openSetupModal() {
+  const stored = S.get('userStartDate') || '2025-04-07';
+  const storedW = S.get('userStartWeight') || 289;
+  document.getElementById('setup-start-date').value = stored;
+  document.getElementById('setup-start-weight').value = storedW;
+  openModal('modal-setup');
+}
+
+function saveSetup() {
+  const dateVal = document.getElementById('setup-start-date').value;
+  const weightVal = document.getElementById('setup-start-weight').value;
+  if(!dateVal) { toast('Please enter a start date', 'var(--red)'); return; }
+  if(!weightVal || parseFloat(weightVal) < 100) { toast('Please enter a valid starting weight', 'var(--red)'); return; }
+  S.set('userStartDate', dateVal);
+  S.set('userStartWeight', parseFloat(weightVal));
+  closeModal('modal-setup');
+  renderAll();
+  toast('✓ Program settings saved!');
+}
+
+function checkFirstRun() {
+  // If no start date stored yet, prompt the user to set it
+  const hasDate = S.get('userStartDate');
+  if(!hasDate) {
+    // Show setup modal after a brief delay so page renders first
+    setTimeout(() => openSetupModal(), 400);
+  }
+}
+
 // Init
+checkFirstRun();
 renderAll();
 </script>
 </body>
