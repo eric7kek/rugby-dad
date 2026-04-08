@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
+<title>Rugby Dad — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0: #0d1117; --bg1: #161b22; --bg2: #1c2333; --bg3: #21262d;
+  --border: #30363d; --border2: #3d444d;
+  --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
+  --green: #3fb950; --green-dim: #1a4f2a; --green-glow: rgba(63,185,80,0.15);
+  --gold: #e3b341; --gold-dim: #3d2f0a; --gold-glow: rgba(227,179,65,0.15);
+  --blue: #58a6ff; --blue-dim: #0c2a4a; --blue-glow: rgba(88,166,255,0.12);
+  --red: #f85149; --red-dim: #3d0f0d; --red-glow: rgba(248,81,73,0.15);
+  --purple: #bc8cff;
+  --radius: 10px; --radius-sm: 6px;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Outfit', sans-serif;
+  --nav-h: 56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg0);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + 20px)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* RULES BANNER */
+.rules-banner{background:var(--bg1);border-bottom:1px solid var(--border);padding:10px 16px;overflow-x:auto;white-space:nowrap;display:flex;gap:0;-ms-overflow-style:none;scrollbar-width:none}
+.rules-banner::-webkit-scrollbar{display:none}
+.rule-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-right:1px solid var(--border);font-size:11px;color:var(--text2);font-family:var(--font-mono);flex-shrink:0}
+.rule-chip:last-child{border-right:none}
+.rule-chip .rn{font-family:var(--font-display);font-size:16px;color:var(--green);line-height:1}
+.rule-chip strong{color:var(--text)}
+
+/* HEADER */
+header{background:var(--bg1);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--text)}
+.logo span{color:var(--green)}
+.header-kpis{display:flex;gap:16px;margin-left:auto;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.header-kpis::-webkit-scrollbar{display:none}
+.kpi{text-align:center;min-width:44px}
+.kpi-val{font-family:var(--font-display);font-size:20px;line-height:1;color:var(--gold)}
+.kpi-label{font-size:9px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--bg1);border-top:1px solid var(--border);display:flex;z-index:200}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text3);font-size:9px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border:none;background:none;transition:color .2s;padding:8px 0}
+.nav-btn.active{color:var(--green)}
+.nav-btn .nav-icon{font-size:18px;line-height:1}
+.nav-btn.active .nav-icon{filter:drop-shadow(0 0 6px var(--green))}
+
+/* MAIN */
+main{max-width:600px;margin:0 auto;padding:16px}
+
+/* PANELS */
+.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.card-header{padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text2)}
+.card-body{padding:14px 16px}
+.card-body.tight{padding:10px 16px}
+
+/* SECTION LABEL */
+.section-label{font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* STAT BLOCKS */
+.stat-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:32px;line-height:1}
+.stat-val.green{color:var(--green)}
+.stat-val.gold{color:var(--gold)}
+.stat-val.blue{color:var(--blue)}
+.stat-val.red{color:var(--red)}
+.stat-label{font-size:10px;color:var(--text2);font-family:var(--font-mono);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* PROGRESS BAR */
+.prog-wrap{margin-top:6px}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px}
+.prog-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .6s ease}
+.prog-fill.green{background:var(--green)}
+.prog-fill.gold{background:var(--gold)}
+.prog-fill.blue{background:var(--blue)}
+
+/* BUTTONS */
+.btn{font-family:var(--font-mono);font-size:11px;padding:8px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.03em;font-weight:500}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover{background:#57d468}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-gold{background:var(--gold);color:#000}
+.btn-sm{padding:5px 10px;font-size:10px}
+.btn-icon{padding:6px 8px;font-size:14px}
+
+/* TAGS/BADGES */
+.badge{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:20px;font-weight:500}
+.badge-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(227,179,65,.3)}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.badge-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.badge-gray{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+
+/* INPUTS */
+input,select,textarea{font-family:var(--font-body);font-size:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:9px 12px;width:100%;transition:border .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b949e'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text2)}
+.field-row{display:grid;gap:10px}
+.field-row.cols2{grid-template-columns:1fr 1fr}
+.field-row.cols3{grid-template-columns:1fr 1fr 1fr}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;border-radius:4px;transition:background .1s}
+.check-item:last-child{border-bottom:none}
+.check-item:active{background:var(--bg2)}
+.checkbox{width:22px;height:22px;border:2px solid var(--border2);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.check-item.done .checkbox{background:var(--green);border-color:var(--green)}
+.check-item.done .checkbox::after{content:'✓';color:#000;font-size:13px;font-weight:700}
+.check-item.done .check-label{color:var(--text3);text-decoration:line-through}
+.check-label{font-size:13px;line-height:1.4;flex:1}
+.check-sub{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:2px}
+
+/* TODAY WORKOUT CARD */
+.today-workout{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.workout-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.workout-type-badge{font-family:var(--font-display);font-size:13px;letter-spacing:1px;padding:3px 10px;border-radius:3px}
+.workout-name{font-size:15px;font-weight:600;flex:1}
+.workout-meta{font-size:10px;color:var(--text2);font-family:var(--font-mono)}
+.workout-actions{display:flex;gap:6px;padding:0 16px 12px;flex-wrap:wrap}
+.action-btn{flex:1;min-width:80px;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--border2);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;background:none;color:var(--text2);transition:all .2s;text-align:center}
+.action-btn:hover,.action-btn.selected{border-color:transparent}
+.action-btn.completed{background:var(--green-dim);color:var(--green);border-color:rgba(63,185,80,.3)}
+.action-btn.deferred{background:var(--gold-dim);color:var(--gold);border-color:rgba(227,179,65,.3)}
+.action-btn.skipped{background:var(--red-dim);color:var(--red);border-color:rgba(248,81,73,.3)}
+.defer-input{padding:10px 16px;background:var(--bg2);border-top:1px solid var(--border);display:none}
+.workout-detail{border-top:1px solid var(--border);padding:12px 16px;display:none;background:var(--bg0)}
+.workout-detail.open{display:block}
+.exercise-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border)}
+.exercise-row:last-child{border-bottom:none}
+.ex-name{font-size:13px;font-weight:500;flex:1}
+.ex-params{font-family:var(--font-mono);font-size:10px;color:var(--text2);text-align:right;white-space:nowrap;margin-left:10px}
+.ex-note{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* MINI INFOGRAPH */
+.infograph{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;position:relative;overflow:hidden}
+.infograph-val{font-family:var(--font-display);font-size:40px;line-height:1}
+.infograph-label{font-size:10px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.infograph-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.ring-chart{display:inline-block;position:relative;width:64px;height:64px}
+.ring-chart svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:16px;line-height:1;text-align:center}
+
+/* MINI BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:48px;margin-top:8px}
+.bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:height .4s}
+.bar-labels{display:flex;gap:4px;margin-top:3px}
+.bar-label{flex:1;font-size:8px;color:var(--text3);font-family:var(--font-mono);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* PHASE BANNER */
+.phase-card{background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.phase-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--gold))}
+.phase-num{font-family:var(--font-display);font-size:48px;line-height:1;color:var(--green);opacity:.15;position:absolute;right:16px;top:8px}
+.phase-title{font-family:var(--font-display);font-size:20px;letter-spacing:1px;color:var(--green)}
+.phase-sub{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5}
+
+/* SESSION LOG */
+.session-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.session-item:last-child{border-bottom:none}
+.session-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.session-info{flex:1;min-width:0}
+.session-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-meta{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:2px}
+.session-link{font-size:10px;color:var(--blue);font-family:var(--font-mono);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-decoration:none}
+
+/* GARMIN ENTRY */
+.garmin-entry{background:var(--bg2);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;border:1px solid var(--border)}
+.garmin-week{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-bottom:8px}
+.garmin-stats{display:flex;gap:12px;flex-wrap:wrap}
+.gs{text-align:center;min-width:44px}
+.gs-val{font-family:var(--font-display);font-size:20px;line-height:1;color:var(--green)}
+.gs-val.warn{color:var(--red)}
+.gs-label{font-size:9px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase}
+
+/* CHECKIN EXPORT */
+.export-box{background:var(--bg0);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-top:12px}
+.export-msg{font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.8;white-space:pre-wrap}
+
+/* WEIGHT TRACKER */
+.weight-display{display:flex;align-items:flex-end;gap:16px;margin-bottom:14px}
+.weight-big{font-family:var(--font-display);font-size:72px;line-height:1;color:var(--text)}
+.weight-delta{font-family:var(--font-mono);font-size:12px}
+.weight-delta.down{color:var(--green)}
+.weight-delta.up{color:var(--red)}
+.weight-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.weight-row:last-child{border-bottom:none}
+.weight-date{font-family:var(--font-mono);font-size:10px;color:var(--text3)}
+
+/* MILESTONE STRIP */
+.milestone-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-ms-overflow-style:none;scrollbar-width:none;margin-bottom:12px}
+.milestone-strip::-webkit-scrollbar{display:none}
+.ms-card{flex-shrink:0;width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;position:relative}
+.ms-card.reached{border-color:var(--green)}
+.ms-card.current{border-color:var(--gold)}
+.ms-weight{font-family:var(--font-display);font-size:28px;color:var(--gold);line-height:1}
+.ms-label{font-size:11px;font-weight:500;margin-top:2px}
+.ms-sub{font-size:9px;color:var(--text3);font-family:var(--font-mono);margin-top:2px}
+
+/* SUPPLEMENT PILLS */
+.supp-group{margin-bottom:12px}
+.supp-time{font-family:var(--font-display);font-size:14px;color:var(--green);letter-spacing:1px;margin-bottom:6px}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px}
+.pill{font-family:var(--font-mono);font-size:10px;background:var(--bg2);color:var(--text2);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(60px);background:var(--bg2);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:10px 20px;border-radius:20px;border:1px solid var(--border);border-left:3px solid var(--green);z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:var(--font-display);font-size:20px;letter-spacing:1px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px}
+
+/* PLAN TAB - workout expandable */
+.plan-workout{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
+.plan-workout-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s}
+.plan-workout-hdr:active{background:var(--bg2)}
+.plan-workout-body{display:none;border-top:1px solid var(--border);background:var(--bg0)}
+.plan-workout-body.open{display:block}
+
+/* CHECKIN SUMMARY CARDS */
+.ci-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ci-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center}
+.ci-val{font-family:var(--font-display);font-size:24px;line-height:1}
+.ci-label{font-size:9px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+@media(min-width:601px){main{padding:20px 24px}header{padding:14px 24px}.rules-banner{padding:10px 24px}.bottom-nav{display:flex;justify-content:center}.bottom-nav{max-width:600px;left:50%;transform:translateX(-50%);border-radius:var(--radius) var(--radius) 0 0}}
+</style>
+</head>
+<body>
+
+<!-- RULES BANNER -->
+<div class="rules-banner">
+  <div class="rule-chip"><span class="rn">1</span><span>Never miss <strong>twice</strong> in a row</span></div>
+  <div class="rule-chip"><span class="rn">2</span><span>Something <strong>beats</strong> nothing</span></div>
+  <div class="rule-chip"><span class="rn">3</span><span><strong>220g</strong> protein daily — #1 rule</span></div>
+  <div class="rule-chip"><span class="rn">4</span><span>Monday <strong>weigh-in</strong>, same time</span></div>
+  <div class="rule-chip"><span class="rn">5</span><span>Wife is <strong>infrastructure</strong></span></div>
+  <div class="rule-chip"><span class="rn">★</span><span>2-for-2: Hit top of rep range twice → <strong>add 5 lbs</strong></span></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Rugby <span>Dad</span></div>
+  <div class="header-kpis" id="headerKpis">
+    <div class="kpi"><div class="kpi-val" id="hdr-weight">289</div><div class="kpi-label">lbs</div></div>
+    <div class="kpi"><div class="kpi-val" id="hdr-lost" style="color:var(--green)">0</div><div class="kpi-label">lost</div></div>
+    <div class="kpi"><div class="kpi-val" id="hdr-weeks" style="color:var(--blue)">0</div><div class="kpi-label">weeks</div></div>
+    <div class="kpi"><div class="kpi-val" id="hdr-sessions" style="color:var(--purple)">0</div><div class="kpi-label">sessions</div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ DASHBOARD ══ -->
+<div id="panel-dashboard" class="panel active">
+
+  <!-- Phase -->
+  <div class="phase-card">
+    <div class="phase-num" id="phaseNum">1</div>
+    <div class="phase-title" id="phaseTitle">Phase 1 — Foundation</div>
+    <div class="phase-sub" id="phaseSub">Months 1–3 · Build the habit · Find working weights</div>
+    <div class="prog-wrap" style="margin-top:10px">
+      <div class="prog-label"><span id="phaseWeekLabel">Week 1 of 12</span><span id="phasePct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill green" id="phaseFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S WORKOUT -->
+  <div class="section-label">Today's Workout</div>
+  <div id="todayWorkoutCard"></div>
+
+  <!-- KPI ROW -->
+  <div class="section-label">Key Numbers</div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="infograph">
+      <div class="infograph-val green" id="dash-weight">289</div>
+      <div class="infograph-label">lbs</div>
+      <div class="infograph-sub" id="dash-lost-sub">Start: 289</div>
+    </div>
+    <div class="infograph">
+      <div class="infograph-val gold" id="dash-sessions">0</div>
+      <div class="infograph-label">Sessions</div>
+      <div class="infograph-sub">This program</div>
+    </div>
+    <div class="infograph">
+      <div class="infograph-val blue" id="dash-streak">0</div>
+      <div class="infograph-label">Week streak</div>
+      <div class="infograph-sub">4+ sessions/wk</div>
+    </div>
+  </div>
+
+  <!-- WEEKLY HABIT SCORE -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="habitWeekLabel">This Week's Habits</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="shiftHabitWeek(-1)" title="Previous week">‹</button>
+        <span style="font-family:var(--font-display);font-size:28px;color:var(--green)" id="habitScore">0</span>
+        <span style="font-size:11px;color:var(--text3)">/10</span>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="shiftHabitWeek(1)" id="habitNextBtn" title="Next week" style="opacity:.3;pointer-events:none">›</button>
+        <button class="btn btn-ghost btn-sm" onclick="saveAndNewWeek()">New Wk</button>
+      </div>
+    </div>
+    <div class="card-body tight" id="habitList"></div>
+  </div>
+
+  <!-- PROGRAM TRACKER -->
+  <div class="section-label">Program Tracker</div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-body">
+      <div class="g3">
+        <div class="stat-block">
+          <div class="stat-val green" id="progDay">1</div>
+          <div class="stat-label">Day</div>
+          <div class="stat-sub">of program</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-val gold" id="progWeek">1</div>
+          <div class="stat-label">Week</div>
+          <div class="stat-sub" id="progWeekSub">of 12 (Phase 1)</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-val blue" id="progDayName">Mon</div>
+          <div class="stat-label">Today</div>
+          <div class="stat-sub" id="progDayType">Lower Body</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY HEATMAP -->
+  <div class="section-label">Activity Heatmap</div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-header">
+      <span class="card-title">Workout History</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)"><span style="width:10px;height:10px;background:var(--green);border-radius:2px;display:inline-block"></span>Lower</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)"><span style="width:10px;height:10px;background:var(--blue);border-radius:2px;display:inline-block"></span>Push</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)"><span style="width:10px;height:10px;background:var(--purple);border-radius:2px;display:inline-block"></span>Pull</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)"><span style="width:10px;height:10px;background:var(--gold);border-radius:2px;display:inline-block"></span>Hinge</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)"><span style="width:10px;height:10px;background:var(--text3);border-radius:2px;display:inline-block"></span>Cardio/Walk</span>
+      </div>
+    </div>
+    <div class="card-body" style="padding:12px">
+      <div id="heatmapGrid" style="display:flex;flex-direction:column;gap:3px;overflow-x:auto"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--text3)" id="heatmapMonths"></div>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="section-label">Milestones</div>
+  <div class="milestone-strip">
+    <div class="ms-card" id="ms1"><div class="ms-weight">272</div><div class="ms-label">Phase 1</div><div class="ms-sub">Month 3</div></div>
+    <div class="ms-card" id="ms2"><div class="ms-weight">255</div><div class="ms-label">Phase 2</div><div class="ms-sub">Month 6</div></div>
+    <div class="ms-card" id="ms3"><div class="ms-weight">235</div><div class="ms-label">Phase 3</div><div class="ms-sub">Month 10</div></div>
+    <div class="ms-card" id="ms4"><div class="ms-weight">215</div><div class="ms-label">Goal</div><div class="ms-sub">Month 18</div></div>
+  </div>
+
+  <!-- RECENT GARMIN -->
+  <div class="section-label">Latest Garmin Stats</div>
+  <div id="latestGarminDash">
+    <div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No Garmin data yet — add a week in the Garmin tab</div>
+  </div>
+
+  <!-- SUPPLEMENT SCHEDULE -->
+  <div class="section-label">Daily Supplements</div>
+  <div class="card">
+    <div class="card-body">
+      <div class="supp-group"><div class="supp-time">With Breakfast</div><div class="pill-row"><span class="pill">Opti-Men</span><span class="pill">Tongkat Ali 100mg</span><span class="pill">Probiotic</span><span class="pill">Green Tea 1000mg</span></div></div>
+      <div class="supp-group"><div class="supp-time">Anytime</div><div class="pill-row"><span class="pill">Creatine 5g</span></div></div>
+      <div class="supp-group"><div class="supp-time">With Largest Meal</div><div class="pill-row"><span class="pill">Vitamin D3 5000 IU + K2</span><span class="pill">Fish Oil 2–3g EPA+DHA</span></div></div>
+      <div class="supp-group" style="margin-bottom:0"><div class="supp-time">Before Bed</div><div class="pill-row"><span class="pill">Magnesium 325mg + Ashwagandha</span></div></div>
+    </div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ═══════════════════════════════════════════════════════ PLAN ══ -->
+<div id="panel-plan" class="panel">
+
+  <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Tap any workout to expand the full exercise list. <span style="color:var(--gold)">★ 2-for-2 Rule:</span> Hit top of rep range on last 2 sets in 2 consecutive sessions → add 5 lbs.</div>
+
+  <div class="section-label">Weekly Schedule</div>
+  <div id="planWorkouts"></div>
+
+  <div class="section-label">Nutrition Blueprint</div>
+  <div class="card">
+    <div class="card-body">
+      <div class="g2" style="margin-bottom:14px">
+        <div style="background:var(--green-dim);border:1px solid rgba(63,185,80,.2);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:36px;color:var(--green)">220g</div>
+          <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Protein / day</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">Non-negotiable #1</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:36px;color:var(--text)">2,400</div>
+          <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Calories / day</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">~500 cal deficit</div>
+        </div>
+      </div>
+      <div id="mealPlan"></div>
+    </div>
+  </div>
+
+  <div class="section-label">When Life Hits</div>
+  <div class="card"><div class="card-body" id="whenLifeHits"></div></div>
+
+</div><!-- /plan -->
+
+<!-- ═══════════════════════════════════════════════════════ WORKOUTS ══ -->
+<div id="panel-workouts" class="panel">
+
+  <div style="background:var(--blue-dim);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+    <strong style="color:var(--blue)">Garmin Activity Links:</strong> Paste your activity URL in chat — I pull every set, weight, rep, and HR automatically. Log it here for your history and the check-in generator.
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Session History</span>
+      <button class="btn btn-green btn-sm" onclick="openModal('modal-add-session')">+ Log</button>
+    </div>
+    <div class="card-body tight" id="sessionList">
+      <div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No sessions yet</div>
+    </div>
+  </div>
+
+</div><!-- /workouts -->
+
+<!-- ═══════════════════════════════════════════════════════ GARMIN ══ -->
+<div id="panel-garmin" class="panel">
+
+  <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+    Log your weekly Garmin Connect dashboard numbers here. Screenshot the dashboard, then fill in the key stats. Takes 2 minutes and builds a trend record over your whole journey.
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Weekly Stats Log</span>
+      <button class="btn btn-green btn-sm" onclick="openModal('modal-add-garmin')">+ Week</button>
+    </div>
+    <div class="card-body tight" id="garminHistory">
+      <div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No weeks logged yet</div>
+    </div>
+  </div>
+
+  <div class="section-label">What to Screenshot Each Week</div>
+  <div class="card"><div class="card-body" id="garminGuide"></div></div>
+
+</div><!-- /garmin -->
+
+<!-- ═══════════════════════════════════════════════════════ CHECK-IN ══ -->
+<div id="panel-checkin" class="panel">
+
+  <!-- Summary Dashboard -->
+  <div class="section-label">This Week at a Glance</div>
+  <div class="ci-summary" id="ciSummary"></div>
+
+  <!-- Score Breakdown -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-header"><span class="card-title">Habit Score</span></div>
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-family:var(--font-display);font-size:64px;line-height:1;color:var(--green)" id="ci-habit-score">0</div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:6px">out of 10 habits completed this week</div>
+          <div class="prog-track"><div class="prog-fill green" id="ci-habit-bar" style="width:0%"></div></div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:4px" id="ci-habit-label">Keep building the habit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session breakdown -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-header"><span class="card-title">Sessions This Week</span></div>
+    <div class="card-body tight" id="ci-sessions-list">
+      <div style="font-size:12px;color:var(--text3);padding:4px 0">No sessions this week</div>
+    </div>
+  </div>
+
+  <!-- Manual inputs for check-in message -->
+  <div class="section-label">Generate Check-in Message</div>
+  <div class="card">
+    <div class="card-body">
+      <div class="field-row cols2">
+        <div class="field"><label>Monday Weight</label><input type="number" id="ci-weight" placeholder="289"></div>
+        <div class="field"><label>Nutrition (1-10)</label><input type="number" min="1" max="10" id="ci-nutrition" placeholder="7"></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Body Battery Max</label><input type="number" id="ci-bb-max" placeholder="80"></div>
+        <div class="field"><label>Body Battery Min</label><input type="number" id="ci-bb-min" placeholder="12"></div>
+      </div>
+      <div class="field"><label>Avg Sleep</label><input type="text" id="ci-sleep" placeholder="7h 31m"></div>
+      <div class="field"><label>Notes / Life / Twins Chaos</label><textarea id="ci-notes" rows="2" placeholder="Rough week? Great week? Anything that affected performance..."></textarea></div>
+      <button class="btn btn-gold" onclick="generateCheckin()" style="width:100%;justify-content:center">Generate Check-in Message</button>
+      <div id="ci-output"></div>
+    </div>
+  </div>
+
+</div><!-- /checkin -->
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchPanel('dashboard',this)">
+    <span class="nav-icon">⚡</span>Dashboard
+  </button>
+  <button class="nav-btn" onclick="switchPanel('plan',this)">
+    <span class="nav-icon">📋</span>Plan
+  </button>
+  <button class="nav-btn" onclick="switchPanel('workouts',this)">
+    <span class="nav-icon">🏋️</span>Sessions
+  </button>
+  <button class="nav-btn" onclick="switchPanel('garmin',this)">
+    <span class="nav-icon">📊</span>Garmin
+  </button>
+  <button class="nav-btn" onclick="switchPanel('checkin',this)">
+    <span class="nav-icon">✅</span>Check-in
+  </button>
+</nav>
+
+<!-- MODAL: Add Session -->
+<div class="modal-overlay" id="modal-add-session" onclick="closeModalOutside(event,'modal-add-session')">
+  <div class="modal">
+    <div class="modal-title">Log Session <button class="modal-close" onclick="closeModal('modal-add-session')">✕</button></div>
+    <div class="field"><label>Date</label><input type="date" id="s-date"></div>
+    <div class="field"><label>Workout</label>
+      <select id="s-type">
+        <option value="">Select workout...</option>
+        <option>Lower Body — Squat Focus</option>
+        <option>Upper Body — Push</option>
+        <option>Cardio Recovery</option>
+        <option>Upper Body — Pull + Deadlift</option>
+        <option>Lower Body — Hinge</option>
+        <option>Walk / Active Recovery</option>
+        <option>Custom</option>
+      </select>
+    </div>
+    <div class="field-row cols3">
+      <div class="field"><label>Duration (min)</label><input type="number" id="s-dur" placeholder="55"></div>
+      <div class="field"><label>Calories</label><input type="number" id="s-cal" placeholder="539"></div>
+      <div class="field"><label>Avg HR</label><input type="number" id="s-hr" placeholder="134"></div>
+    </div>
+    <div class="field"><label>Garmin Activity URL (optional)</label><input type="url" id="s-url" placeholder="https://connect.garmin.com/app/activity/..."></div>
+    <div class="field"><label>Notes</label><textarea id="s-notes" rows="2" placeholder="How it felt, what was heavy, what was easy..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-session')" style="justify-content:center">Cancel</button>
+      <button class="btn btn-green" onclick="saveSession()" style="justify-content:center">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Garmin Week -->
+<div class="modal-overlay" id="modal-add-garmin" onclick="closeModalOutside(event,'modal-add-garmin')">
+  <div class="modal">
+    <div class="modal-title">Log Garmin Week <button class="modal-close" onclick="closeModal('modal-add-garmin')">✕</button></div>
+    <div class="field"><label>Week of (Monday)</label><input type="date" id="g-week"></div>
+    <div class="field-row cols2">
+      <div class="field"><label>Avg Sleep Duration</label><input type="text" id="g-sleep" placeholder="7h 31m"></div>
+      <div class="field"><label>Avg Sleep Score</label><input type="number" id="g-sleep-score" placeholder="72"></div>
+    </div>
+    <div class="field-row cols2">
+      <div class="field"><label>Body Battery Max</label><input type="number" id="g-bb-max" placeholder="80"></div>
+      <div class="field"><label>Body Battery Min</label><input type="number" id="g-bb-min" placeholder="12"></div>
+    </div>
+    <div class="field-row cols3">
+      <div class="field"><label>Avg Steps</label><input type="text" id="g-steps" placeholder="6,240"></div>
+      <div class="field"><label>Avg Stress</label><input type="number" id="g-stress" placeholder="32"></div>
+      <div class="field"><label>Resting HR</label><input type="number" id="g-rhr" placeholder="63"></div>
+    </div>
+    <div class="field"><label>Notes</label><input type="text" id="g-notes" placeholder="Twins rough? Good week? Anything notable..."></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-garmin')" style="justify-content:center">Cancel</button>
+      <button class="btn btn-green" onclick="saveGarmin()" style="justify-content:center">Save Week</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════ DATA ══
+const START_WEIGHT = 289;
+const START_DATE = new Date('2025-04-07');
+
+const WORKOUTS = [
+  {
+    id: 'lower-squat', day: 'Monday', type: 'Lower', color: 'var(--green)', icon: '🦵',
+    name: 'Lower Body — Squat Focus', duration: '50–60 min',
+    desc: 'Quad-dominant lower body. Heavy squats first, build posterior chain. Key for rugby power.',
+    exercises: [
+      {name:'Barbell Back Squat', params:'4 sets × 6–8 reps', note:'Top set AMRAP. Log the number. 2-for-2 rule applies.'},
+      {name:'Barbell Hip Thrust', params:'3 × 10–12', note:'Bench + pad. Drive hips to ceiling. Full extension at top.'},
+      {name:'Dumbbell Bulgarian Split Squat', params:'3 × 8–10/leg', note:'Rear foot on bench. Start lighter than ego wants.'},
+      {name:'Step-Up with Dumbbells', params:'3 × 10/leg', note:'Use step box. Controlled descent. Don\'t bounce.'},
+      {name:'Dumbbell Romanian Deadlift', params:'3 × 10–12', note:'Hinge, don\'t squat. Feel the hamstring stretch.'},
+      {name:'Calf Raise + Vest Walk (superset)', params:'3 × 15–20 + 3 min', note:'On plate edge for range. Then 20lb vest walk.'},
+    ]
+  },
+  {
+    id: 'upper-push', day: 'Tuesday', type: 'Push', color: 'var(--blue)', icon: '💪',
+    name: 'Upper Body — Push', duration: '50–60 min',
+    desc: 'Chest, shoulders, triceps. Bench focus. Sets the foundation for pressing strength.',
+    exercises: [
+      {name:'Barbell Bench Press', params:'4 sets × 6–8 reps', note:'Top set AMRAP. Control the descent.'},
+      {name:'Incline Dumbbell Press', params:'3 × 10–12', note:'30–45° incline. Don\'t drop the weight down.'},
+      {name:'Dumbbell Shoulder Press', params:'3 × 10–12', note:'Seated or standing. Core tight. Don\'t arch lower back.'},
+      {name:'Lateral Raise + Tricep Ext (superset)', params:'3 × 12–15', note:'Slow laterals 3s up/3s down. EZ bar overhead for tri.'},
+      {name:'Plank + Dead Bug (superset)', params:'3 × 30–45s', note:'Squeeze everything in plank. Slow controlled dead bugs.'},
+    ]
+  },
+  {
+    id: 'cardio', day: 'Wednesday', type: 'Cardio', color: 'var(--text2)', icon: '🚣',
+    name: 'Cardio Recovery', duration: '25–35 min',
+    desc: 'Active recovery. Easy blood flow — not a workout. Moves nutrients into sore muscles.',
+    exercises: [
+      {name:'Rowing Machine', params:'15–20 min', note:'Easy conversational pace. 18–22 s/m. Not a workout — recovery.'},
+      {name:'Treadmill Walk', params:'10–15 min', note:'3.5–4.0 mph. Optional 2–3% incline. Easy.'},
+    ]
+  },
+  {
+    id: 'upper-pull', day: 'Thursday', type: 'Pull', color: 'var(--purple)', icon: '🏋️',
+    name: 'Upper Body — Pull + Deadlift', duration: '55–65 min',
+    desc: 'Deadlift heavy, then build the back. Biggest session of the week. Back, biceps, grip.',
+    exercises: [
+      {name:'Barbell Deadlift', params:'4 sets × 4/3/2/1+', note:'Heaviest session of the week. Brace hard. Use chalk from Month 2.'},
+      {name:'Barbell Bent-Over Row', params:'4 × 6–8', note:'After deadlifts back is warm. Pull to belly button, chest stays up.'},
+      {name:'Single-Arm Dumbbell Row', params:'3 × 10–12/arm', note:'Brace on bench. Long pull — elbow past your back.'},
+      {name:'EZ Bar Curl + Hammer Curl (superset)', params:'3 × 10–12', note:'No swinging. Elbows pinned. Neutral grip hammers.'},
+      {name:'Prone Rear Delt Raise', params:'3 × 12–15', note:'Face down on incline bench. Fixes WFH posture.'},
+      {name:'Pull-Up or Assisted', params:'3 × max reps', note:'Dead hang, full range. Use rack bar if still building.'},
+    ]
+  },
+  {
+    id: 'lower-hinge', day: 'Friday', type: 'Hinge', color: 'var(--gold)', icon: '🍑',
+    name: 'Lower Body — Hinge + Accessories', duration: '50–60 min',
+    desc: 'Hip-hinge dominant. RDL, hip thrust, carries. Hamstrings, glutes, rugby sprint power.',
+    exercises: [
+      {name:'Romanian Deadlift (Barbell)', params:'4 × 8–10', note:'Heavy hinge day. More volume than Monday. Feel every rep.'},
+      {name:'Barbell Hip Thrust', params:'4 × 8–10', note:'Heavier than Monday. Add weight if form holds.'},
+      {name:'Step-Up with Weighted Vest', params:'3 × 10/leg', note:'Add 20lb vest. Brutal. Great for rugby hill running.'},
+      {name:'Dumbbell Walking Lunge', params:'3 × 10/leg', note:'Long stride. Torso upright. Garage or driveway.'},
+      {name:'Farmer\'s Carry (50s)', params:'3 × 40–50m', note:'Grab heaviest dumbbells. Walk with purpose. Core braced.'},
+    ]
+  },
+  {
+    id: 'walk', day: 'Saturday', type: 'Walk', color: 'var(--text3)', icon: '👟',
+    name: 'Walk / Active Recovery', duration: '30–45 min',
+    desc: 'Stroller walk counts. Family time + fat loss. Garmin tracks every step.',
+    exercises: [
+      {name:'Outdoor Walk or Stroller Walk', params:'30–45 min', note:'Family time. Every step counts on Garmin.'},
+    ]
+  },
+];
+
+const HABITS = [
+  {id:'sessions', label:'Completed 4 training sessions', sub:'Mon / Tue / Thu / Fri'},
+  {id:'protein', label:'Hit 220g protein every day', sub:'7/7 days — #1 rule'},
+  {id:'water', label:'1 gallon water daily', sub:'Set reminders — WFH dads forget'},
+  {id:'steps', label:'8,000+ daily steps (Garmin)', sub:'Check Body Battery first'},
+  {id:'weigh', label:'Monday morning weigh-in logged', sub:'Same time, after bathroom'},
+  {id:'supps', label:'Full supplement stack daily', sub:'All 8, correct timing'},
+  {id:'batch', label:'Batch cooked protein this week', sub:'Sunday — 45 min, 4 days solved'},
+  {id:'wife', label:'Protected training time with wife', sub:'She is infrastructure'},
+  {id:'alcohol', label:'Alcohol minimal or zero', sub:'2+ drinks = 48hr testosterone hit'},
+  {id:'sleep', label:'6+ hours sleep, 5+ nights', sub:'5/7 nights minimum'},
+];
+
+const MEALS = [
+  {time:'AM', label:'Breakfast', desc:'4–5 eggs + ground beef/steak in butter. Black coffee.'},
+  {time:'10', label:'Mid-Morning', desc:'Greek yogurt (full fat) or hard-boiled eggs.'},
+  {time:'12', label:'Lunch', desc:'Red meat + roasted veg. No bread, no bun.'},
+  {time:'PRE', label:'Pre-Workout', desc:'Whey shake + banana. 30 min before session.'},
+  {time:'POST', label:'Post-Workout', desc:'Biggest meal. Steak + rice or sweet potato + veg.'},
+  {time:'PM', label:'Evening', desc:'Cottage cheese or Greek yogurt. Gaming snack that works.'},
+];
+
+const WHEN_LIFE_HITS = [
+  {icon:'😴', color:'var(--gold)', title:'Rough Night / Sick Twin', desc:'Don\'t train. 20 min walk instead. Hit protein. Resume next scheduled day. Not losing progress — surviving.'},
+  {icon:'📅', color:'var(--blue)', title:'Missed 3–5 Days', desc:'Don\'t make it up. Don\'t cram two sessions. Just do the next scheduled workout at normal intensity.'},
+  {icon:'⚖️', color:'var(--green)', title:'Scale Stalled 2+ Weeks', desc:'Check protein first. If hitting 220g, cut 150 cal OR add 2,000 steps/day. Small adjustment, not a restart.'},
+];
+
+const GARMIN_GUIDE = [
+  {icon:'🔋', color:'var(--blue)', title:'Body Battery Max', desc:'Above 60 → train hard. 40–60 → moderate. Below 30 → walk only. Check before every single session.'},
+  {icon:'😴', color:'var(--purple)', title:'Sleep Score + REM', desc:'Score below 70 = impaired recovery even with 8 hrs. REM is when testosterone is produced. Low REM = low gains.'},
+  {icon:'❤️', color:'var(--red)', title:'Resting Heart Rate', desc:'Your baseline is 63–65 bpm. Watch it fall as fitness builds. Falling RHR = your engine improving. Month-over-month trend.'},
+  {icon:'📉', color:'var(--green)', title:'Avg Daily Stress', desc:'30–38 is your normal. Spikes above 45 = back off training intensity. Chronically high stress = cortisol = fat storage.'},
+];
+
+// ═══════════════════════════════════════════════════════════════ STORAGE ══
+const S = {
+  get: k => { try { return JSON.parse(localStorage.getItem('rd2_'+k)) ?? null; } catch { return null; }},
+  set: (k,v) => localStorage.setItem('rd2_'+k, JSON.stringify(v)),
+};
+
+// ═══════════════════════════════════════════════════════════════ INIT ══
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('s-date').value = today;
+  document.getElementById('g-week').value = today;
+  renderAll();
+});
+
+function renderAll() {
+  updatePhase();
+  updateHeader();
+  renderProgramTracker();
+  renderTodayWorkout();
+  renderHabits();
+  renderMilestones();
+  renderHeatmap();
+  renderPlan();
+  renderSessions();
+  renderGarmin();
+  renderCheckin();
+  renderLatestGarminDash();
+}
+
+// ═══════════════════════════════════════════════════════════════ NAVIGATION ══
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════════════════════ MODALS ══
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if(e.target.classList.contains('modal-overlay')) closeModal(id); }
+
+// ═══════════════════════════════════════════════════════════════ TOAST ══
+function toast(msg, color='var(--green)') {
+  const t = document.getElementById('toast');
+  t.style.borderLeftColor = color;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════ PHASE ══
+function updatePhase() {
+  const weeks = Math.max(0, Math.floor((new Date() - START_DATE)/(7*24*60*60*1000)));
+  let p, title, sub, wip, pw;
+  if(weeks < 12){p=1;title='Foundation';sub='Months 1–3 · Build the habit · Find working weights';wip=weeks;pw=12;}
+  else if(weeks < 26){p=2;title='Build';sub='Months 4–6 · Strength rising · Add pull-ups + intervals';wip=weeks-12;pw=14;}
+  else if(weeks < 44){p=3;title='Rugby Conditioning';sub='Months 7–10 · Game-ready fitness · Contact clubs';wip=weeks-26;pw=18;}
+  else{p=4;title='Game Day';sub='Months 11–18 · Active rugby player · Healthy dad';wip=Math.min(weeks-44,30);pw=30;}
+  const pct = Math.min(100, Math.round(wip/pw*100));
+  document.getElementById('phaseNum').textContent = p;
+  document.getElementById('phaseTitle').textContent = `Phase ${p} — ${title}`;
+  document.getElementById('phaseSub').textContent = sub;
+  document.getElementById('phaseWeekLabel').textContent = `Week ${wip+1} of ${pw}`;
+  document.getElementById('phasePct').textContent = pct+'%';
+  document.getElementById('phaseFill').style.width = pct+'%';
+}
+
+// ═══════════════════════════════════════════════════════════════ HEADER ══
+function updateHeader() {
+  const weights = S.get('weights') || [];
+  const sessions = S.get('sessions') || [];
+  const current = weights.length ? weights[0].weight : START_WEIGHT;
+  const lost = Math.max(0, START_WEIGHT - current);
+  const weeks = Math.max(0, Math.floor((new Date()-START_DATE)/(7*24*60*60*1000)));
+  document.getElementById('hdr-weight').textContent = current;
+  document.getElementById('hdr-lost').textContent = lost.toFixed(1);
+  document.getElementById('hdr-weeks').textContent = weeks;
+  document.getElementById('hdr-sessions').textContent = sessions.length;
+  document.getElementById('dash-weight').textContent = current;
+  document.getElementById('dash-sessions').textContent = sessions.length;
+  const lostSub = lost > 0 ? `↓ ${lost.toFixed(1)} lbs lost` : `Goal: 200–225 lbs`;
+  document.getElementById('dash-lost-sub').textContent = lostSub;
+  // streak
+  const streak = calcStreak(sessions);
+  document.getElementById('dash-streak').textContent = streak;
+}
+
+function calcStreak(sessions) {
+  // count consecutive weeks with 4+ sessions
+  if(!sessions.length) return 0;
+  let streak = 0;
+  const now = new Date();
+  for(let w=0; w<52; w++) {
+    const wStart = new Date(now - w*7*24*60*60*1000);
+    wStart.setDate(wStart.getDate() - wStart.getDay());
+    const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
+    const count = sessions.filter(s => {
+      const d = new Date(s.date+'T12:00:00');
+      return d >= wStart && d <= wEnd;
+    }).length;
+    if(count >= 4) streak++;
+    else if(w > 0) break;
+  }
+  return streak;
+}
+
+// ═══════════════════════════════════════════════════════════════ TODAY'S WORKOUT ══
+function renderTodayWorkout() {
+  const dayIdx = new Date().getDay(); // 0=Sun
+  const workoutStatus = S.get('workoutStatus') || {};
+  const today = new Date().toISOString().split('T')[0];
+  // Mon=1->0, Tue=2->1, Wed=3->2, Thu=4->3, Fri=5->4, Sat=6->5
+  const dayMap = {1:0,2:1,3:2,4:3,5:4,6:5};
+  const wIdx = dayMap[dayIdx];
+  const el = document.getElementById('todayWorkoutCard');
+
+  if(wIdx === undefined) {
+    el.innerHTML = `<div class="card"><div class="card-body" style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">☀️</div><div style="font-weight:500">Rest Day</div><div style="font-size:12px;color:var(--text3);margin-top:4px">Sleep. Eat. Recover. Non-negotiable.</div></div></div>`;
+    return;
+  }
+  const w = WORKOUTS[wIdx];
+  const key = today + '_' + w.id;
+  const status = workoutStatus[key] || null;
+  const deferDate = workoutStatus[key+'_defer'] || '';
+
+  const statusBadge = status === 'completed' ? `<span class="badge badge-green">✓ Done</span>` :
+    status === 'deferred' ? `<span class="badge badge-gold">→ Deferred</span>` :
+    status === 'skipped' ? `<span class="badge badge-red">✕ Skipped</span>` : '';
+
+  el.innerHTML = `
+  <div class="today-workout card">
+    <div class="workout-header" onclick="toggleWorkoutDetail('detail-today')">
+      <div class="workout-type-badge" style="background:${w.color}22;color:${w.color};border:1px solid ${w.color}44">${w.type}</div>
+      <div>
+        <div class="workout-name">${w.name}</div>
+        <div class="workout-meta">${w.duration} · ${w.exercises.length} exercises ${statusBadge}</div>
+      </div>
+      <div style="color:var(--text3);font-size:12px">▾</div>
+    </div>
+    <div class="workout-actions">
+      <button class="action-btn ${status==='completed'?'completed':''}" onclick="setWorkoutStatus('${key}','completed')" ${status&&status!=='completed'?'style="opacity:.4"':''}>✓ Done</button>
+      <button class="action-btn ${status==='deferred'?'deferred':''}" onclick="setWorkoutStatus('${key}','deferred')" ${status&&status!=='deferred'?'style="opacity:.4"':''}>→ Defer</button>
+      <button class="action-btn ${status==='skipped'?'skipped':''}" onclick="setWorkoutStatus('${key}','skipped')" ${status&&status!=='skipped'?'style="opacity:.4"':''}>✕ Skip</button>
+    </div>
+    <div id="defer-input-${key}" class="defer-input" ${status==='deferred'?'style="display:block"':''}>
+      <div class="field"><label>Which day did/will you do it?</label><input type="date" id="defer-date-${key}" value="${deferDate}" onchange="saveDeferDate('${key}',this.value)"></div>
+    </div>
+    <div class="workout-detail" id="detail-today">
+      <div style="padding:10px 16px 6px;font-size:11px;color:var(--text3);font-family:var(--font-mono)">${w.desc}</div>
+      ${w.exercises.map(ex => `
+        <div class="exercise-row">
+          <div><div class="ex-name">${ex.name}</div><div class="ex-note">${ex.note}</div></div>
+          <div class="ex-params">${ex.params}</div>
+        </div>`).join('')}
+      <div style="padding:10px 16px 12px">
+        <button class="btn btn-green btn-sm" onclick="openModal('modal-add-session');document.getElementById('s-type').value='${w.name}'" style="width:100%;justify-content:center">+ Log This Session</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleWorkoutDetail(id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+
+function setWorkoutStatus(key, status) {
+  const ws = S.get('workoutStatus') || {};
+  ws[key] = ws[key] === status ? null : status;
+  S.set('workoutStatus', ws);
+  const deferEl = document.getElementById('defer-input-'+key);
+  if(deferEl) deferEl.style.display = (ws[key]==='deferred') ? 'block' : 'none';
+  renderTodayWorkout();
+  toast(status === 'completed' ? '✓ Workout marked done!' : status === 'deferred' ? '→ Deferred — pick your day' : '✕ Skipped');
+}
+
+function saveDeferDate(key, val) {
+  const ws = S.get('workoutStatus') || {};
+  ws[key+'_defer'] = val;
+  S.set('workoutStatus', ws);
+}
+
+// ═══════════════════════════════════════════════════════════════ PROGRAM TRACKER ══
+function renderProgramTracker() {
+  const dayNum = Math.max(1, Math.floor((new Date() - START_DATE)/(24*60*60*1000)) + 1);
+  const weekNum = Math.ceil(dayNum/7);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayTypes = {0:'Rest',1:'Lower Body',2:'Push',3:'Cardio',4:'Pull',5:'Hinge',6:'Walk'};
+  const todayIdx = new Date().getDay();
+  const phaseNum = weekNum <= 12 ? 1 : weekNum <= 26 ? 2 : weekNum <= 44 ? 3 : 4;
+  const phaseWeeks = [0,12,14,18,30][phaseNum];
+  const weekInPhase = weekNum <= 12 ? weekNum : weekNum <= 26 ? weekNum-12 : weekNum <= 44 ? weekNum-26 : weekNum-44;
+  document.getElementById('progDay').textContent = dayNum;
+  document.getElementById('progWeek').textContent = weekNum;
+  document.getElementById('progWeekSub').textContent = `Wk ${weekInPhase}/${phaseWeeks} · Ph${phaseNum}`;
+  document.getElementById('progDayName').textContent = dayNames[todayIdx];
+  document.getElementById('progDayType').textContent = dayTypes[todayIdx] || 'Rest';
+}
+
+// ═══════════════════════════════════════════════════════════════ HEATMAP ══
+function renderHeatmap() {
+  const sessions = S.get('sessions') || [];
+  const sessionMap = {};
+  sessions.forEach(s => {
+    const t = s.type || '';
+    let color = '#3fb950';
+    if(t.includes('Push')) color = '#58a6ff';
+    else if(t.includes('Pull')) color = '#bc8cff';
+    else if(t.includes('Hinge')) color = '#e3b341';
+    else if(t.includes('Cardio') || t.includes('Walk') || t.includes('Active')) color = '#8b949e';
+    else if(t.includes('Lower')) color = '#3fb950';
+    else if(t.includes('Upper')) color = '#58a6ff';
+    sessionMap[s.date] = color;
+  });
+  const numWeeks = 20;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const startDay = new Date(today);
+  startDay.setDate(startDay.getDate() - numWeeks*7 + 1);
+  const dow = startDay.getDay();
+  startDay.setDate(startDay.getDate() - (dow === 0 ? 6 : dow - 1));
+  const cols = [];
+  let d = new Date(startDay);
+  const progStart = new Date(START_DATE); progStart.setHours(0,0,0,0);
+  const todayStr = today.toISOString().split('T')[0];
+  while(d <= today) {
+    const weekCells = [];
+    for(let day=0; day<7; day++) {
+      const ds = d.toISOString().split('T')[0];
+      weekCells.push({ds, future: d > today, beforeProgram: d < progStart, color: sessionMap[ds], isToday: ds === todayStr});
+      d.setDate(d.getDate()+1);
+    }
+    cols.push(weekCells);
+  }
+  const dayL = ['M','T','W','T','F','S','S'];
+  const grid = document.getElementById('heatmapGrid');
+  let html = '';
+  for(let day=0; day<7; day++) {
+    html += `<div style="display:flex;align-items:center;gap:3px">`;
+    html += `<span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);width:10px;flex-shrink:0">${dayL[day]}</span>`;
+    cols.forEach(week => {
+      const c = week[day];
+      if(!c || c.future) { html += `<div style="width:12px;height:12px;flex-shrink:0"></div>`; return; }
+      if(c.beforeProgram) { html += `<div style="width:12px;height:12px;border-radius:2px;background:var(--bg3);flex-shrink:0;opacity:.2"></div>`; return; }
+      const bg = c.color || 'var(--bg3)';
+      const opacity = c.color ? 1 : 0.4;
+      const border = c.isToday ? 'border:1px solid white;' : '';
+      html += `<div title="${c.ds}${c.color?' ✓':''}" style="width:12px;height:12px;border-radius:2px;background:${bg};flex-shrink:0;opacity:${opacity};${border}"></div>`;
+    });
+    html += `</div>`;
+  }
+  grid.innerHTML = html;
+  let lastM = -1;
+  const mLabels = cols.map(week => {
+    const m = new Date(week[0].ds).getMonth();
+    if(m !== lastM) { lastM = m; return new Date(week[0].ds).toLocaleDateString('en-US',{month:'short'}); }
+    return '';
+  });
+  document.getElementById('heatmapMonths').innerHTML =
+    `<div style="display:flex;gap:3px;margin-left:13px">${mLabels.map(l=>`<div style="width:12px;flex-shrink:0;font-size:9px;color:var(--text3);font-family:var(--font-mono)">${l}</div>`).join('')}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════ HABITS ══
+let habitViewOffset = 0;
+
+function getWeekKey(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay();
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  const wn = getISOWeek(monday);
+  return `${monday.getFullYear()}-W${String(wn).padStart(2,'0')}`;
+}
+
+function getISOWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+}
+
+function getWeekRangeLabel(offset) {
+  if(offset === 0) return "This Week's Habits";
+  if(offset === -1) return "Last Week's Habits";
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay();
+  const monday = new Date(d); monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  const fmt = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return `${fmt(monday)} – ${fmt(sunday)}`;
+}
+
+function shiftHabitWeek(dir) {
+  const next = habitViewOffset + dir;
+  if(next > 0) return;
+  habitViewOffset = next;
+  renderHabits();
+}
+
+function renderHabits() {
+  const wk = getWeekKey(habitViewOffset);
+  const allHabits = S.get('allHabits') || {};
+  const habits = allHabits[wk] || {};
+  const done = Object.values(habits).filter(Boolean).length;
+  const isCurrentWeek = habitViewOffset === 0;
+  document.getElementById('habitScore').textContent = done;
+  document.getElementById('habitWeekLabel').textContent = getWeekRangeLabel(habitViewOffset);
+  const nextBtn = document.getElementById('habitNextBtn');
+  if(habitViewOffset >= 0) { nextBtn.style.opacity='.3'; nextBtn.style.pointerEvents='none'; }
+  else { nextBtn.style.opacity='1'; nextBtn.style.pointerEvents='auto'; }
+  document.getElementById('habitList').innerHTML = HABITS.map(h => `
+    <div class="check-item ${habits[h.id]?'done':''}" onclick="${isCurrentWeek?`toggleHabit('${h.id}')`:''}" style="${!isCurrentWeek?'cursor:default':''}" >
+      <div class="checkbox"></div>
+      <div class="check-label">${h.label}<div class="check-sub">${h.sub}</div></div>
+    </div>`).join('');
+}
+
+function toggleHabit(id) {
+  if(habitViewOffset !== 0) return;
+  const wk = getWeekKey(0);
+  const allHabits = S.get('allHabits') || {};
+  if(!allHabits[wk]) allHabits[wk] = {};
+  allHabits[wk][id] = !allHabits[wk][id];
+  S.set('allHabits', allHabits);
+  renderHabits();
+  renderCheckin();
+}
+
+function saveAndNewWeek() {
+  habitViewOffset = 0;
+  renderHabits();
+  toast('Viewing current week — habits auto-save by week', 'var(--blue)');
+}
+
+function resetHabits() { saveAndNewWeek(); }
+
+// ═══════════════════════════════════════════════════════════════ MILESTONES ══
+function renderMilestones() {
+  const weights = S.get('weights') || [];
+  const current = weights.length ? weights[0].weight : START_WEIGHT;
+  const ms = [{id:'ms1',target:272},{id:'ms2',target:255},{id:'ms3',target:235},{id:'ms4',target:215}];
+  ms.forEach(m => {
+    const el = document.getElementById(m.id);
+    if(current <= m.target) el.classList.add('reached');
+    else if(current <= m.target + 17) el.classList.add('current');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════ PLAN TAB ══
+function renderPlan() {
+  // Workouts
+  document.getElementById('planWorkouts').innerHTML = WORKOUTS.map(w => `
+    <div class="plan-workout">
+      <div class="plan-workout-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
+        <div class="workout-type-badge" style="background:${w.color}22;color:${w.color};border:1px solid ${w.color}44;min-width:52px;text-align:center">${w.type}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500">${w.name}</div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:2px">${w.day} · ${w.duration}</div>
+        </div>
+        <div style="color:var(--text3);font-size:12px;margin-left:8px">▾</div>
+      </div>
+      <div class="plan-workout-body">
+        <div style="padding:10px 16px 6px;font-size:11px;color:var(--text2);line-height:1.5">${w.desc}</div>
+        ${w.exercises.map(ex => `
+          <div class="exercise-row" style="padding:8px 16px">
+            <div><div class="ex-name">${ex.name}</div><div class="ex-note">${ex.note}</div></div>
+            <div class="ex-params">${ex.params}</div>
+          </div>`).join('')}
+        <div style="height:4px"></div>
+      </div>
+    </div>`).join('');
+
+  // Meals
+  document.getElementById('mealPlan').innerHTML = MEALS.map(m => `
+    <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--font-display);font-size:14px;color:var(--gold);width:36px;flex-shrink:0;line-height:1.4">${m.time}</div>
+      <div><div style="font-size:12px;font-weight:500">${m.label}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${m.desc}</div></div>
+    </div>`).join('');
+
+  // When life hits
+  document.getElementById('whenLifeHits').innerHTML = WHEN_LIFE_HITS.map(w => `
+    <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:24px;flex-shrink:0;width:30px;text-align:center">${w.icon}</div>
+      <div><div style="font-size:13px;font-weight:500;color:${w.color};margin-bottom:3px">${w.title}</div><div style="font-size:12px;color:var(--text2);line-height:1.5">${w.desc}</div></div>
+    </div>`).join('');
+
+  // Garmin guide
+  document.getElementById('garminGuide').innerHTML = GARMIN_GUIDE.map(g => `
+    <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:20px;width:28px;flex-shrink:0;text-align:center">${g.icon}</div>
+      <div><div style="font-size:12px;font-weight:600;color:${g.color};margin-bottom:3px">${g.title}</div><div style="font-size:11px;color:var(--text2);line-height:1.5">${g.desc}</div></div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════ WEIGHT ══
+function logWeight() {
+  const val = parseFloat(document.getElementById('s-weight')?.value || 0);
+  if(!val) return;
+  const weights = S.get('weights') || [];
+  weights.unshift({date: new Date().toISOString().split('T')[0], weight: val});
+  S.set('weights', weights.slice(0,30));
+  updateHeader();
+  renderMilestones();
+  toast(`✓ ${val} lbs logged`);
+}
+
+// ═══════════════════════════════════════════════════════════════ SESSIONS ══
+function saveSession() {
+  const sess = {
+    id: Date.now(),
+    date: document.getElementById('s-date').value,
+    type: document.getElementById('s-type').value,
+    duration: document.getElementById('s-dur').value,
+    calories: document.getElementById('s-cal').value,
+    hr: document.getElementById('s-hr').value,
+    url: document.getElementById('s-url').value,
+    notes: document.getElementById('s-notes').value,
+  };
+  if(!sess.date || !sess.type) { toast('Date and workout required','var(--red)'); return; }
+  const sessions = S.get('sessions') || [];
+  sessions.unshift(sess);
+  S.set('sessions', sessions);
+  closeModal('modal-add-session');
+  ['s-dur','s-cal','s-hr','s-url','s-notes'].forEach(id => document.getElementById(id).value='');
+  renderSessions();
+  updateHeader();
+  renderCheckin();
+  toast('✓ Session logged!');
+}
+
+function deleteSession(id) {
+  const sessions = (S.get('sessions')||[]).filter(s=>s.id!==id);
+  S.set('sessions',sessions);
+  renderSessions();
+  updateHeader();
+  renderCheckin();
+}
+
+function renderSessions() {
+  const sessions = S.get('sessions') || [];
+  const el = document.getElementById('sessionList');
+  if(!sessions.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No sessions yet — log your first one, or paste a Garmin URL in chat</div>';return;}
+  el.innerHTML = sessions.slice(0,20).map(s => {
+    const w = WORKOUTS.find(w=>w.name===s.type)||{color:'var(--text2)',icon:'🏋️',type:s.type.split('—')[0]?.trim()||'?'};
+    return `<div class="session-item">
+      <div class="session-icon" style="background:${w.color}22">${w.icon||'🏋️'}</div>
+      <div class="session-info">
+        <div class="session-name">${s.type}</div>
+        <div class="session-meta">${s.date}${s.duration?' · '+s.duration+'min':''}${s.calories?' · '+s.calories+'cal':''}${s.hr?' · '+s.hr+'bpm':''}</div>
+        ${s.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${s.notes}</div>`:''}
+        ${s.url?`<a href="${s.url.startsWith('http')?s.url:'https://'+s.url}" target="_blank" class="session-link">View on Garmin →</a>`:''}
+      </div>
+      <button onclick="deleteSession(${s.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;font-size:16px;flex-shrink:0">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════ GARMIN ══
+function saveGarmin() {
+  const entry = {
+    id: Date.now(),
+    week: document.getElementById('g-week').value,
+    sleep: document.getElementById('g-sleep').value,
+    sleepScore: document.getElementById('g-sleep-score').value,
+    bbMax: document.getElementById('g-bb-max').value,
+    bbMin: document.getElementById('g-bb-min').value,
+    steps: document.getElementById('g-steps').value,
+    stress: document.getElementById('g-stress').value,
+    rhr: document.getElementById('g-rhr').value,
+    notes: document.getElementById('g-notes').value,
+  };
+  if(!entry.week){toast('Select a week date','var(--red)');return;}
+  const garmin = S.get('garmin')||[];
+  garmin.unshift(entry);
+  S.set('garmin', garmin.slice(0,52));
+  closeModal('modal-add-garmin');
+  ['g-sleep','g-sleep-score','g-bb-max','g-bb-min','g-steps','g-stress','g-rhr','g-notes'].forEach(id=>document.getElementById(id).value='');
+  renderGarmin();
+  renderLatestGarminDash();
+  toast('✓ Garmin week saved!');
+}
+
+function renderGarmin() {
+  const garmin = S.get('garmin')||[];
+  const el = document.getElementById('garminHistory');
+  if(!garmin.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No weeks logged — screenshot your Garmin dashboard and add the numbers here</div>';return;}
+  el.innerHTML = garmin.slice(0,12).map(g=>`
+    <div class="garmin-entry">
+      <div class="garmin-week">Week of ${g.week}</div>
+      <div class="garmin-stats">
+        ${g.sleep?`<div class="gs"><div class="gs-val">${g.sleep}</div><div class="gs-label">Sleep</div></div>`:''}
+        ${g.sleepScore?`<div class="gs"><div class="gs-val ${parseInt(g.sleepScore)<70?'warn':''}">${g.sleepScore}</div><div class="gs-label">Score</div></div>`:''}
+        ${g.bbMax?`<div class="gs"><div class="gs-val">${g.bbMax}</div><div class="gs-label">BB Max</div></div>`:''}
+        ${g.bbMin?`<div class="gs"><div class="gs-val ${parseInt(g.bbMin)<25?'warn':''}">${g.bbMin}</div><div class="gs-label">BB Min</div></div>`:''}
+        ${g.steps?`<div class="gs"><div class="gs-val">${g.steps}</div><div class="gs-label">Steps</div></div>`:''}
+        ${g.stress?`<div class="gs"><div class="gs-val">${g.stress}</div><div class="gs-label">Stress</div></div>`:''}
+        ${g.rhr?`<div class="gs"><div class="gs-val">${g.rhr}</div><div class="gs-label">RHR</div></div>`:''}
+      </div>
+      ${g.notes?`<div style="font-size:10px;color:var(--text3);margin-top:8px;font-style:italic">${g.notes}</div>`:''}
+    </div>`).join('');
+}
+
+function renderLatestGarminDash() {
+  const garmin = S.get('garmin')||[];
+  const el = document.getElementById('latestGarminDash');
+  if(!garmin.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0;font-style:italic">Add weekly Garmin stats in the Garmin tab</div>';return;}
+  const g = garmin[0];
+  el.innerHTML = `
+  <div class="g3" style="margin-bottom:4px">
+    ${g.bbMax?`<div class="stat-block"><div class="stat-val ${parseInt(g.bbMax)>=60?'green':'red'}">${g.bbMax}</div><div class="stat-label">BB Max</div><div class="stat-sub">${parseInt(g.bbMax)>=60?'✓ Train hard':'⚠ Reduce load'}</div></div>`:''}
+    ${g.sleep?`<div class="stat-block"><div class="stat-val blue">${g.sleep}</div><div class="stat-label">Avg Sleep</div></div>`:''}
+    ${g.rhr?`<div class="stat-block"><div class="stat-val gold">${g.rhr}</div><div class="stat-label">Resting HR</div><div class="stat-sub">bpm</div></div>`:''}
+  </div>
+  <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);text-align:right;margin-top:2px">Week of ${g.week}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════ CHECK-IN ══
+function renderCheckin() {
+  const habits = S.get('habits')||{};
+  const sessions = S.get('sessions')||[];
+  const weights = S.get('weights')||[];
+  const garmin = S.get('garmin')||[];
+  const habitDone = Object.values(habits).filter(Boolean).length;
+  const habitPct = Math.round(habitDone/10*100);
+
+  // Summary cards
+  const current = weights.length ? weights[0].weight : START_WEIGHT;
+  const lost = Math.max(0, START_WEIGHT - current);
+  const thisWeekSessions = getThisWeekSessions(sessions);
+
+  document.getElementById('ci-summary').innerHTML = `
+    <div class="ci-card"><div class="ci-val" style="color:var(--green)">${current}</div><div class="ci-label">Current lbs</div></div>
+    <div class="ci-card"><div class="ci-val" style="color:var(--gold)">${lost.toFixed(1)}</div><div class="ci-label">Total Lost</div></div>
+    <div class="ci-card"><div class="ci-val" style="color:var(--blue)">${thisWeekSessions.length}</div><div class="ci-label">Sessions this wk</div></div>
+    <div class="ci-card"><div class="ci-val" style="color:var(--purple)">${habitDone}/10</div><div class="ci-label">Habits done</div></div>`;
+
+  document.getElementById('ci-habit-score').textContent = habitDone;
+  document.getElementById('ci-habit-bar').style.width = habitPct+'%';
+  document.getElementById('ci-habit-label').textContent =
+    habitDone >= 9 ? '🔥 Outstanding week' :
+    habitDone >= 7 ? '✓ Solid week' :
+    habitDone >= 5 ? '→ Getting there' : 'Keep building the habit';
+
+  // Sessions this week
+  const sessEl = document.getElementById('ci-sessions-list');
+  if(!thisWeekSessions.length) {
+    sessEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">No sessions this week</div>';
+  } else {
+    sessEl.innerHTML = thisWeekSessions.map(s=>`
+      <div class="session-item" style="padding:6px 0">
+        <div style="font-size:18px">${WORKOUTS.find(w=>w.name===s.type)?.icon||'🏋️'}</div>
+        <div class="session-info">
+          <div class="session-name" style="font-size:12px">${s.type}</div>
+          <div class="session-meta">${s.date}${s.duration?' · '+s.duration+'min':''}${s.calories?' · '+s.calories+'cal':''}</div>
+        </div>
+        <span class="badge badge-green">Done</span>
+      </div>`).join('');
+  }
+
+  // Pre-fill check-in inputs with latest data
+  if(weights.length) document.getElementById('ci-weight').value = weights[0].weight;
+  if(garmin.length) {
+    const g = garmin[0];
+    if(g.bbMax) document.getElementById('ci-bb-max').value = g.bbMax;
+    if(g.bbMin) document.getElementById('ci-bb-min').value = g.bbMin;
+    if(g.sleep) document.getElementById('ci-sleep').value = g.sleep;
+  }
+}
+
+function getThisWeekSessions(sessions) {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay()-1));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
+  return sessions.filter(s => {
+    const d = new Date(s.date+'T12:00:00');
+    return d >= monday && d <= sunday;
+  });
+}
+
+function generateCheckin() {
+  const sessions = S.get('sessions')||[];
+  const habits = S.get('habits')||{};
+  const habitDone = Object.values(habits).filter(Boolean).length;
+  const thisWeekSessions = getThisWeekSessions(sessions);
+  const weight = document.getElementById('ci-weight').value;
+  const nutrition = document.getElementById('ci-nutrition').value;
+  const bbMax = document.getElementById('ci-bb-max').value;
+  const bbMin = document.getElementById('ci-bb-min').value;
+  const sleep = document.getElementById('ci-sleep').value;
+  const notes = document.getElementById('ci-notes').value;
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const lost = weight ? (START_WEIGHT - parseFloat(weight)).toFixed(1) : '—';
+  const sessLines = thisWeekSessions.length
+    ? thisWeekSessions.map(s=>`  ${s.date} — ${s.type}${s.duration?' ('+s.duration+'min)':''}${s.url?' [Garmin: '+s.url+']':''}`).join('\n')
+    : '  No sessions logged this week';
+
+  const msg = `📅 CHECK-IN — ${today}
+
+⚖️ Weight: ${weight ? weight+' lbs (↓'+lost+' total)' : '—'}
+💤 Avg Sleep: ${sleep||'—'}
+⚡ Body Battery: Max ${bbMax||'—'} / Min ${bbMin||'—'}
+🍖 Nutrition: ${nutrition ? nutrition+'/10' : '—'}
+✅ Habits: ${habitDone}/10 completed
+
+🏋️ Sessions This Week:
+${sessLines}
+
+💬 Notes: ${notes||'—'}`;
+
+  document.getElementById('ci-output').innerHTML = `
+    <div class="export-box">
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Copy → Paste in chat with your coach</div>
+      <div class="export-msg">${msg}</div>
+      <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy',2000)})" style="margin-top:10px;font-family:var(--font-mono);font-size:10px;padding:7px 14px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text2);cursor:pointer">Copy</button>
+    </div>`;
+}
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
