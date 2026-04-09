@@ -229,8 +229,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .pill{font-family:var(--font-mono);font-size:10px;background:var(--bg2);color:var(--text2);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
 
 /* TOAST */
-.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(60px);background:var(--bg2);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:10px 20px;border-radius:20px;border:1px solid var(--border);border-left:3px solid var(--green);z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:10px 20px;border-radius:20px;border:1px solid var(--border);border-left:3px solid var(--green);z-index:999;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s ease}
+.toast.show{opacity:1}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-end;justify-content:center}
@@ -325,9 +325,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 
   <!-- QUICK WEIGHT LOG -->
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-    <input type="number" id="dash-weight-input" placeholder="Log Monday weight (lbs)" step="0.1" style="flex:1;font-size:14px">
-    <button class="btn btn-green" onclick="logWeightDash()" style="white-space:nowrap;flex-shrink:0">✓ Log</button>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-header"><span class="card-title">Weight Log</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--text3)">Monday mornings · after bathroom</span></div>
+    <div class="card-body tight">
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+        <input type="number" id="dash-weight-input" placeholder="Enter weight (lbs)" step="0.1" style="flex:1;font-size:14px">
+        <button class="btn btn-green" onclick="logWeightDash()" style="white-space:nowrap;flex-shrink:0">✓ Log</button>
+      </div>
+      <div id="weight-log-list"></div>
+    </div>
   </div>
 
   <!-- WEEKLY HABIT SCORE -->
@@ -588,6 +594,64 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="btn btn-ghost" onclick="closeModal('modal-add-session')" style="justify-content:center">Cancel</button>
       <button class="btn btn-green" onclick="saveSession()" style="justify-content:center">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Session -->
+<div class="modal-overlay" id="modal-edit-session" onclick="closeModalOutside(event,'modal-edit-session')">
+  <div class="modal">
+    <div class="modal-title">Edit Session <button class="modal-close" onclick="closeModal('modal-edit-session')">✕</button></div>
+    <input type="hidden" id="es-id">
+    <div class="field"><label>Date</label><input type="date" id="es-date"></div>
+    <div class="field"><label>Workout</label>
+      <select id="es-type">
+        <option>Lower Body — Squat Focus</option>
+        <option>Upper Body — Push</option>
+        <option>Cardio Recovery</option>
+        <option>Upper Body — Pull + Deadlift</option>
+        <option>Lower Body — Hinge</option>
+        <option>Walk / Active Recovery</option>
+        <option>Custom</option>
+      </select>
+    </div>
+    <div class="field-row cols3">
+      <div class="field"><label>Duration (min)</label><input type="number" id="es-dur"></div>
+      <div class="field"><label>Calories</label><input type="number" id="es-cal"></div>
+      <div class="field"><label>Avg HR</label><input type="number" id="es-hr"></div>
+    </div>
+    <div class="field"><label>Garmin URL</label><input type="url" id="es-url"></div>
+    <div class="field"><label>Notes</label><textarea id="es-notes" rows="2"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-session')" style="justify-content:center">Cancel</button>
+      <button class="btn btn-green" onclick="saveEditSession()" style="justify-content:center">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Garmin Week -->
+<div class="modal-overlay" id="modal-edit-garmin" onclick="closeModalOutside(event,'modal-edit-garmin')">
+  <div class="modal">
+    <div class="modal-title">Edit Garmin Week <button class="modal-close" onclick="closeModal('modal-edit-garmin')">✕</button></div>
+    <input type="hidden" id="eg-id">
+    <div class="field"><label>Week of (Monday)</label><input type="date" id="eg-week"></div>
+    <div class="field-row cols2">
+      <div class="field"><label>Avg Sleep Duration</label><input type="text" id="eg-sleep"></div>
+      <div class="field"><label>Avg Sleep Score</label><input type="number" id="eg-sleep-score"></div>
+    </div>
+    <div class="field-row cols2">
+      <div class="field"><label>Body Battery Max</label><input type="number" id="eg-bb-max"></div>
+      <div class="field"><label>Body Battery Min</label><input type="number" id="eg-bb-min"></div>
+    </div>
+    <div class="field-row cols3">
+      <div class="field"><label>Avg Steps</label><input type="text" id="eg-steps"></div>
+      <div class="field"><label>Avg Stress</label><input type="number" id="eg-stress"></div>
+      <div class="field"><label>Resting HR</label><input type="number" id="eg-rhr"></div>
+    </div>
+    <div class="field"><label>Notes</label><input type="text" id="eg-notes"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-garmin')" style="justify-content:center">Cancel</button>
+      <button class="btn btn-green" onclick="saveEditGarmin()" style="justify-content:center">Save Changes</button>
     </div>
   </div>
 </div>
@@ -868,6 +932,7 @@ function renderAll() {
   renderTodayWorkout();
   renderHabits();
   renderMilestones();
+  renderWeightList();
   renderHeatmap();
   renderPlan();
   renderSessions();
@@ -891,12 +956,17 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function closeModalOutside(e, id) { if(e.target.classList.contains('modal-overlay')) closeModal(id); }
 
 // ═══════════════════════════════════════════════════════════════ TOAST ══
+let _toastTimer = null;
 function toast(msg, color='var(--green)') {
   const t = document.getElementById('toast');
+  if(_toastTimer) clearTimeout(_toastTimer);
   t.style.borderLeftColor = color;
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  _toastTimer = setTimeout(() => {
+    t.classList.remove('show');
+    _toastTimer = null;
+  }, 2500);
 }
 
 // ═══════════════════════════════════════════════════════════════ PHASE ══
@@ -1300,9 +1370,50 @@ function renderSessions() {
         ${s.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${s.notes}</div>`:''}
         ${s.url?`<a href="${s.url.startsWith('http')?s.url:'https://'+s.url}" target="_blank" class="session-link">View on Garmin →</a>`:''}
       </div>
-      <button onclick="deleteSession(${s.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;font-size:16px;flex-shrink:0">×</button>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+        <button onclick="openEditSession(${s.id})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;padding:3px 8px;font-size:10px;font-family:var(--font-mono)">edit</button>
+        <button onclick="deleteSession(${s.id})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--red);cursor:pointer;padding:3px 8px;font-size:10px;font-family:var(--font-mono)">del</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+function openEditSession(id) {
+  const sessions = S.get('sessions') || [];
+  const s = sessions.find(x => x.id === id);
+  if(!s) return;
+  document.getElementById('es-id').value = id;
+  document.getElementById('es-date').value = s.date || '';
+  document.getElementById('es-type').value = s.type || '';
+  document.getElementById('es-dur').value = s.duration || '';
+  document.getElementById('es-cal').value = s.calories || '';
+  document.getElementById('es-hr').value = s.hr || '';
+  document.getElementById('es-url').value = s.url || '';
+  document.getElementById('es-notes').value = s.notes || '';
+  openModal('modal-edit-session');
+}
+
+function saveEditSession() {
+  const id = parseInt(document.getElementById('es-id').value);
+  const sessions = S.get('sessions') || [];
+  const idx = sessions.findIndex(x => x.id === id);
+  if(idx === -1) return;
+  sessions[idx] = {
+    ...sessions[idx],
+    date: document.getElementById('es-date').value,
+    type: document.getElementById('es-type').value,
+    duration: document.getElementById('es-dur').value,
+    calories: document.getElementById('es-cal').value,
+    hr: document.getElementById('es-hr').value,
+    url: document.getElementById('es-url').value,
+    notes: document.getElementById('es-notes').value,
+  };
+  S.set('sessions', sessions);
+  closeModal('modal-edit-session');
+  renderSessions();
+  renderCheckin();
+  renderHeatmap();
+  toast('✓ Session updated!');
 }
 
 // ═══════════════════════════════════════════════════════════════ GARMIN ══
@@ -1336,7 +1447,13 @@ function renderGarmin() {
   if(!garmin.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;font-style:italic">No weeks logged — screenshot your Garmin dashboard and add the numbers here</div>';return;}
   el.innerHTML = garmin.slice(0,12).map(g=>`
     <div class="garmin-entry">
-      <div class="garmin-week">Week of ${g.week}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="garmin-week" style="margin-bottom:0">Week of ${g.week}</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="openEditGarmin(${g.id})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;padding:3px 8px;font-size:10px;font-family:var(--font-mono)">edit</button>
+          <button onclick="deleteGarmin(${g.id})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--red);cursor:pointer;padding:3px 8px;font-size:10px;font-family:var(--font-mono)">del</button>
+        </div>
+      </div>
       <div class="garmin-stats">
         ${g.sleep?`<div class="gs"><div class="gs-val">${g.sleep}</div><div class="gs-label">Sleep</div></div>`:''}
         ${g.sleepScore?`<div class="gs"><div class="gs-val ${parseInt(g.sleepScore)<70?'warn':''}">${g.sleepScore}</div><div class="gs-label">Score</div></div>`:''}
@@ -1348,6 +1465,57 @@ function renderGarmin() {
       </div>
       ${g.notes?`<div style="font-size:10px;color:var(--text3);margin-top:8px;font-style:italic">${g.notes}</div>`:''}
     </div>`).join('');
+}
+
+function openEditGarmin(id) {
+  const garmin = S.get('garmin') || [];
+  const g = garmin.find(x => x.id === id);
+  if(!g) return;
+  document.getElementById('eg-id').value = id;
+  document.getElementById('eg-week').value = g.week || '';
+  document.getElementById('eg-sleep').value = g.sleep || '';
+  document.getElementById('eg-sleep-score').value = g.sleepScore || '';
+  document.getElementById('eg-bb-max').value = g.bbMax || '';
+  document.getElementById('eg-bb-min').value = g.bbMin || '';
+  document.getElementById('eg-steps').value = g.steps || '';
+  document.getElementById('eg-stress').value = g.stress || '';
+  document.getElementById('eg-rhr').value = g.rhr || '';
+  document.getElementById('eg-notes').value = g.notes || '';
+  openModal('modal-edit-garmin');
+}
+
+function saveEditGarmin() {
+  const id = parseInt(document.getElementById('eg-id').value);
+  const garmin = S.get('garmin') || [];
+  const idx = garmin.findIndex(x => x.id === id);
+  if(idx === -1) return;
+  garmin[idx] = {
+    ...garmin[idx],
+    week: document.getElementById('eg-week').value,
+    sleep: document.getElementById('eg-sleep').value,
+    sleepScore: document.getElementById('eg-sleep-score').value,
+    bbMax: document.getElementById('eg-bb-max').value,
+    bbMin: document.getElementById('eg-bb-min').value,
+    steps: document.getElementById('eg-steps').value,
+    stress: document.getElementById('eg-stress').value,
+    rhr: document.getElementById('eg-rhr').value,
+    notes: document.getElementById('eg-notes').value,
+  };
+  S.set('garmin', garmin);
+  closeModal('modal-edit-garmin');
+  renderGarmin();
+  renderLatestGarminDash();
+  renderCheckin();
+  toast('✓ Garmin week updated!');
+}
+
+function deleteGarmin(id) {
+  const garmin = (S.get('garmin')||[]).filter(g => g.id !== id);
+  S.set('garmin', garmin);
+  renderGarmin();
+  renderLatestGarminDash();
+  renderCheckin();
+  toast('Garmin week deleted', 'var(--text3)');
 }
 
 function renderLatestGarminDash() {
@@ -1475,13 +1643,43 @@ function logWeightDash() {
   const val = parseFloat(inp.value);
   if(isNaN(val) || val < 100 || val > 500) { toast('Enter a valid weight (lbs)', 'var(--red)'); return; }
   const weights = S.get('weights') || [];
-  weights.unshift({date: new Date().toISOString().split('T')[0], weight: val});
+  weights.unshift({id: Date.now(), date: new Date().toISOString().split('T')[0], weight: val});
   S.set('weights', weights.slice(0,52));
   inp.value = '';
   updateHeader();
   renderMilestones();
   renderCheckin();
+  renderWeightList();
   toast(`✓ ${val} lbs logged!`);
+}
+
+function deleteWeight(id) {
+  const weights = (S.get('weights')||[]).filter(w => w.id !== id);
+  S.set('weights', weights);
+  updateHeader();
+  renderMilestones();
+  renderCheckin();
+  renderWeightList();
+  toast('Weight entry deleted', 'var(--text3)');
+}
+
+function renderWeightList() {
+  const el = document.getElementById('weight-log-list');
+  if(!el) return;
+  const weights = S.get('weights') || [];
+  if(!weights.length) { el.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:6px 0;font-style:italic">No entries yet</div>'; return; }
+  el.innerHTML = weights.slice(0,10).map((w,i) => {
+    const prev = weights[i+1];
+    const delta = prev ? (w.weight - prev.weight).toFixed(1) : null;
+    const deltaStr = delta ? (parseFloat(delta) < 0
+      ? `<span style="color:var(--green);font-size:10px"> ${delta}</span>`
+      : `<span style="color:var(--red);font-size:10px"> +${delta}</span>`) : '';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">${w.date}</span>
+      <span style="font-size:13px;font-weight:500">${w.weight} lbs${deltaStr}</span>
+      <button onclick="deleteWeight(${w.id||i})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--red);cursor:pointer;padding:2px 6px;font-size:10px;font-family:var(--font-mono)">del</button>
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════ SETUP ══
