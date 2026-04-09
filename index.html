@@ -273,11 +273,14 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <div class="logo" style="display:flex;align-items:center;gap:10px">Rugby <span>Dad</span>
     <button onclick="openSetupModal()" style="background:none;border:1px solid var(--border);border-radius:5px;padding:4px 8px;color:var(--text3);cursor:pointer;font-size:11px;font-family:var(--font-mono);letter-spacing:.04em" title="Settings">⚙ Setup</button>
   </div>
-  <div class="header-kpis" id="headerKpis">
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+    <span id="sync-status" style="font-family:var(--font-mono);font-size:9px;color:var(--text3);opacity:0;transition:opacity .5s;white-space:nowrap"></span>
+    <div class="header-kpis" id="headerKpis">
     <div class="kpi"><div class="kpi-val" id="hdr-weight">289</div><div class="kpi-label">lbs</div></div>
     <div class="kpi"><div class="kpi-val" id="hdr-lost" style="color:var(--green)">0</div><div class="kpi-label">lost</div></div>
     <div class="kpi"><div class="kpi-val" id="hdr-weeks" style="color:var(--blue)">0</div><div class="kpi-label">weeks</div></div>
     <div class="kpi"><div class="kpi-val" id="hdr-sessions" style="color:var(--purple)">0</div><div class="kpi-label">sessions</div></div>
+  </div>
   </div>
 </header>
 
@@ -635,6 +638,21 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div style="background:var(--blue-dim);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;font-size:11px;color:var(--text2);line-height:1.6">
       💡 Your data (sessions, habits, Garmin weeks, weight log) is saved separately and <strong>will not be cleared</strong> when you change these settings.
     </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px">
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Your Sync ID — save this</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="user-id-display" style="font-family:var(--font-mono);font-size:12px;color:var(--green);flex:1;word-break:break-all"></div>
+        <button onclick="copyUserId()" class="btn btn-ghost btn-sm">Copy</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5">If you ever clear your browser data, paste this ID in the Restore box below to get all your data back instantly.</div>
+      <div style="margin-top:8px">
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Restore from ID</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="restore-id-input" placeholder="Paste your rd_... ID here" style="flex:1;font-size:12px">
+          <button onclick="restoreFromId()" class="btn btn-gold btn-sm">Restore</button>
+        </div>
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <button class="btn btn-ghost" onclick="closeModal('modal-setup')" style="justify-content:center">Cancel</button>
       <button class="btn btn-green" onclick="saveSetup()" style="justify-content:center">Save Settings</button>
@@ -761,10 +779,79 @@ const GARMIN_GUIDE = [
 ];
 
 // ═══════════════════════════════════════════════════════════════ STORAGE ══
+const SUPABASE_URL = 'https://rqujokdqwbgedirtnyrb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_38izlorgoTvC1gSIOAaq9g_VG7zLlKC';
+const LS_PREFIX = 'rd2_';
+const SYNC_KEYS = ['weights','sessions','garmin','allHabits','workoutStatus','userStartDate','userStartWeight'];
+
+// Generate or retrieve a permanent anonymous user ID
+function getUserId() {
+  let uid = localStorage.getItem(LS_PREFIX + 'uid');
+  if(!uid) {
+    uid = 'rd_' + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10);
+    localStorage.setItem(LS_PREFIX + 'uid', uid);
+  }
+  return uid;
+}
+
+// Local-first storage — instant reads/writes, Supabase syncs async
 const S = {
-  get: k => { try { return JSON.parse(localStorage.getItem('rd2_'+k)) ?? null; } catch { return null; }},
-  set: (k,v) => localStorage.setItem('rd2_'+k, JSON.stringify(v)),
+  get: k => { try { return JSON.parse(localStorage.getItem(LS_PREFIX+k)) ?? null; } catch { return null; } },
+  set: (k,v) => {
+    localStorage.setItem(LS_PREFIX+k, JSON.stringify(v));
+    dbSet(k, v); // async, fire-and-forget
+  },
 };
+
+// ── Supabase helpers ──
+async function dbRequest(method, body=null) {
+  const uid = getUserId();
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': method === 'POST' ? 'resolution=merge-duplicates' : '',
+    },
+  };
+  if(body) opts.body = JSON.stringify(body);
+  return fetch(SUPABASE_URL + '/rest/v1/rugby_data', opts);
+}
+
+async function dbSet(key, value) {
+  try {
+    const uid = getUserId();
+    await dbRequest('POST', [{ user_id: uid, key, value, updated_at: new Date().toISOString() }]);
+  } catch(e) { /* offline — local copy is fine */ }
+}
+
+async function dbLoadAll() {
+  try {
+    const uid = getUserId();
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/rugby_data?user_id=eq.${uid}&select=key,value`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+    );
+    if(!res.ok) return false;
+    const rows = await res.json();
+    if(!rows.length) return false;
+    rows.forEach(row => {
+      localStorage.setItem(LS_PREFIX + row.key, JSON.stringify(row.value));
+    });
+    return true;
+  } catch(e) { return false; }
+}
+
+// Sync indicator
+function showSyncStatus(msg, color='var(--green)') {
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 3000);
+}
 
 // ═══════════════════════════════════════════════════════════════ INIT ══
 document.addEventListener('DOMContentLoaded', () => {
@@ -1279,7 +1366,8 @@ function renderLatestGarminDash() {
 
 // ═══════════════════════════════════════════════════════════════ CHECK-IN ══
 function renderCheckin() {
-  const habits = S.get('habits')||{};
+  const allHabits = S.get('allHabits')||{};
+  const habits = allHabits[getWeekKey(0)]||{};
   const sessions = S.get('sessions')||[];
   const weights = S.get('weights')||[];
   const garmin = S.get('garmin')||[];
@@ -1344,7 +1432,8 @@ function getThisWeekSessions(sessions) {
 
 function generateCheckin() {
   const sessions = S.get('sessions')||[];
-  const habits = S.get('habits')||{};
+  const _allH = S.get('allHabits')||{};
+  const habits = _allH[getWeekKey(0)]||{};
   const habitDone = Object.values(habits).filter(Boolean).length;
   const thisWeekSessions = getThisWeekSessions(sessions);
   const weight = document.getElementById('ci-weight').value;
@@ -1401,7 +1490,39 @@ function openSetupModal() {
   const storedW = S.get('userStartWeight') || 289;
   document.getElementById('setup-start-date').value = stored;
   document.getElementById('setup-start-weight').value = storedW;
+  // Show the user's sync ID
+  const uid = getUserId();
+  document.getElementById('user-id-display').textContent = uid;
   openModal('modal-setup');
+}
+
+function copyUserId() {
+  const uid = getUserId();
+  navigator.clipboard.writeText(uid).then(() => toast('✓ Sync ID copied — save it somewhere safe!'));
+}
+
+async function restoreFromId() {
+  const inp = document.getElementById('restore-id-input');
+  const newId = inp.value.trim();
+  if(!newId.startsWith('rd_') || newId.length < 10) {
+    toast('Invalid ID — should start with rd_', 'var(--red)');
+    return;
+  }
+  // Save new ID to localStorage, then reload from Supabase
+  localStorage.setItem(LS_PREFIX + 'uid', newId);
+  inp.value = '';
+  document.getElementById('user-id-display').textContent = newId;
+  showSyncStatus('Restoring data...', 'var(--gold)');
+  const loaded = await dbLoadAll();
+  if(loaded) {
+    closeModal('modal-setup');
+    renderAll();
+    toast('✓ Data restored from cloud!');
+  } else {
+    toast('No data found for that ID — check it and try again', 'var(--red)');
+    // Revert
+    localStorage.removeItem(LS_PREFIX + 'uid');
+  }
 }
 
 function saveSetup() {
@@ -1417,17 +1538,29 @@ function saveSetup() {
 }
 
 function checkFirstRun() {
-  // If no start date stored yet, prompt the user to set it
   const hasDate = S.get('userStartDate');
   if(!hasDate) {
-    // Show setup modal after a brief delay so page renders first
-    setTimeout(() => openSetupModal(), 400);
+    setTimeout(() => openSetupModal(), 600);
   }
 }
 
-// Init
-checkFirstRun();
-renderAll();
+// ── Async startup: load from Supabase, then render ──
+async function init() {
+  // Show loading state
+  document.getElementById('sync-status').textContent = 'Loading data...';
+  document.getElementById('sync-status').style.opacity = '1';
+
+  const loaded = await dbLoadAll();
+  if(loaded) {
+    showSyncStatus('✓ Data synced from cloud');
+  } else {
+    showSyncStatus('Using local data', 'var(--text3)');
+  }
+  checkFirstRun();
+  renderAll();
+}
+
+init();
 </script>
 </body>
 </html>
