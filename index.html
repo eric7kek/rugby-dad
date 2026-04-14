@@ -414,7 +414,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <div class="card">
     <div class="card-body">
       <div class="supp-group"><div class="supp-time">With Breakfast</div><div class="pill-row"><span class="pill">Opti-Men</span><span class="pill">Tongkat Ali 100mg</span><span class="pill">Probiotic</span><span class="pill">Green Tea 1000mg</span></div></div>
-      <div class="supp-group"><div class="supp-time">Anytime</div><div class="pill-row"><span class="pill">Creatine 5g</span></div></div>
+      <div class="supp-group"><div class="supp-time">Anytime</div><div class="pill-row"><span class="pill">Creatine 5g</span><span class="pill">Whey Protein (to hit 240g)</span></div></div>
       <div class="supp-group"><div class="supp-time">With Largest Meal</div><div class="pill-row"><span class="pill">Vitamin D3 5000 IU + K2</span><span class="pill">Fish Oil 2–3g EPA+DHA</span></div></div>
       <div class="supp-group" style="margin-bottom:0"><div class="supp-time">Before Bed</div><div class="pill-row"><span class="pill">Magnesium 325mg + Ashwagandha</span></div></div>
     </div>
@@ -741,60 +741,59 @@ const WORKOUTS = [
   {
     id: 'lower-squat', day: 'Monday', type: 'Lower', color: 'var(--green)', icon: '🦵',
     name: 'Lower Body — Squat Focus', duration: '50–60 min',
-    desc: 'Quad-dominant lower body. Heavy squats first, build posterior chain. Key for rugby power.',
+    desc: 'Quad-dominant lower body. Heavy squats first. Good mornings prime the posterior chain. Lunges and step-ups add unilateral volume.',
     exercises: [
-      {name:'Barbell Back Squat', params:'4 sets × 6–8 reps', note:'Top set AMRAP. Log the number. 2-for-2 rule applies.'},
-      {name:'Barbell Hip Thrust', params:'3 × 10–12', note:'Bench + pad. Drive hips to ceiling. Full extension at top.'},
-      {name:'Dumbbell Bulgarian Split Squat', params:'3 × 8–10/leg', note:'Rear foot on bench. Start lighter than ego wants.'},
-      {name:'Step-Up with Dumbbells', params:'3 × 10/leg', note:'Use step box. Controlled descent. Don\'t bounce.'},
-      {name:'Dumbbell Romanian Deadlift', params:'3 × 10–12', note:'Hinge, don\'t squat. Feel the hamstring stretch.'},
-      {name:'Calf Raise + Vest Walk (superset)', params:'3 × 15–20 + 3 min', note:'On plate edge for range. Then 20lb vest walk.'},
+      {name:'Barbell Back Squat', params:'4 sets × 5/5/5+/AMRAP', note:'Work to top set, AMRAP on final set. Log the number every session — your primary strength benchmark.'},
+      {name:'Good Mornings', params:'3 × 10', note:'Hinge at the hip, slight knee bend, bar on back. Light load — posterior chain primer, not max effort.'},
+      {name:'Dumbbell Lunge', params:'3 × 10/leg', note:'Alternating. Long stride, torso upright. Controlled descent. DBs at sides.'},
+      {name:'Step-Up with Dumbbells', params:'3 × 10/leg', note:'Controlled descent — do not bounce off the floor. Higher box = more glute/ham. Lower box = more quad.'},
+      {name:'Dumbbell Romanian Deadlift', params:'3 × 10–12', note:'Hinge, don\'t squat. Maintain ~15° knee bend. Drive hips forward to stand — glutes not lower back.'},
+      {name:'Calf Raise + Vest Walk (superset)', params:'3 × 15–20 + immediate walk', note:'Full range on plate edge. Strap vest on immediately after final rep. Walk 10–15 min. No rest between.'},
     ]
   },
   {
     id: 'upper-push', day: 'Tuesday', type: 'Push', color: 'var(--blue)', icon: '💪',
     name: 'Upper Body — Push', duration: '50–60 min',
-    desc: 'Chest, shoulders, triceps. Bench focus. Sets the foundation for pressing strength.',
+    desc: 'Chest, shoulders, triceps. Bench first while pressing strength is uncompromised. OHP adds vertical pressing volume. Russian twists finish the session.',
     exercises: [
-      {name:'Barbell Bench Press', params:'4 sets × 6–8 reps', note:'Top set AMRAP. Control the descent.'},
-      {name:'Incline Dumbbell Press', params:'3 × 10–12', note:'30–45° incline. Don\'t drop the weight down.'},
-      {name:'Dumbbell Shoulder Press', params:'3 × 10–12', note:'Seated or standing. Core tight. Don\'t arch lower back.'},
-      {name:'Lateral Raise + Tricep Ext (superset)', params:'3 × 12–15', note:'Slow laterals 3s up/3s down. EZ bar overhead for tri.'},
-      {name:'Plank + Dead Bug (superset)', params:'3 × 30–45s', note:'Squeeze everything in plank. Slow controlled dead bugs.'},
+      {name:'Barbell Bench Press', params:'4 sets × 5/5/5+/AMRAP', note:'Control descent (2–3 sec down). Log AMRAP reps each session. This is your pressing benchmark.'},
+      {name:'Overhead Press (Barbell)', params:'3 × 8', note:'Core tight throughout. Don\'t use leg drive. Press in a straight line — bar travels slightly back at top.'},
+      {name:'Incline Dumbbell Press', params:'3 × 10–12', note:'30–45° incline. Upper pec and anterior delt. Control the descent — don\'t drop the weight.'},
+      {name:'Lateral Raise + EZ Tricep Ext (superset)', params:'3 × 12–15 / 10–12', note:'Slow laterals: 3 sec up, 3 sec down. Elbows pointed up on overhead extension. No rest between.'},
+      {name:'Weighted Russian Twists', params:'3 × 20 (10/side)', note:'10lb bumper plate. Seated at 45° recline, feet on floor or elevated. Rotate side to side, controlled.'},
     ]
   },
   {
     id: 'cardio', day: 'Wednesday', type: 'Cardio', color: 'var(--text2)', icon: '🚣',
     name: 'Cardio Recovery', duration: '25–35 min',
-    desc: 'Active recovery. Easy blood flow — not a workout. Moves nutrients into sore muscles.',
+    desc: 'Not a workout. Active recovery — drives blood through sore tissue, adds Garmin steps. Conversational pace throughout.',
     exercises: [
-      {name:'Rowing Machine', params:'15–20 min', note:'Easy conversational pace. 18–22 s/m. Not a workout — recovery.'},
-      {name:'Treadmill Walk', params:'10–15 min', note:'3.5–4.0 mph. Optional 2–3% incline. Easy.'},
+      {name:'Rowing Machine', params:'15–20 min', note:'18–22 strokes/min. Conversational pace. Focus on leg drive first, then pull. Recovery, not conditioning.'},
+      {name:'Treadmill Walk', params:'10–15 min', note:'3.5–4.0 mph, 2–3% incline optional. Combine for 25–35 min total.'},
     ]
   },
   {
     id: 'upper-pull', day: 'Thursday', type: 'Pull', color: 'var(--purple)', icon: '🏋️',
     name: 'Upper Body — Pull + Deadlift', duration: '55–65 min',
-    desc: 'Deadlift heavy, then build the back. Biggest session of the week. Back, biceps, grip.',
+    desc: 'Heaviest session of the week. Deadlift first while fully fresh. Row volume reinforces deadlift mechanics. Rear delt work protects shoulder integrity.',
     exercises: [
-      {name:'Barbell Deadlift', params:'4 sets × 4/3/2/1+', note:'Heaviest session of the week. Brace hard. Use chalk from Month 2.'},
-      {name:'Barbell Bent-Over Row', params:'4 × 6–8', note:'After deadlifts back is warm. Pull to belly button, chest stays up.'},
-      {name:'Single-Arm Dumbbell Row', params:'3 × 10–12/arm', note:'Brace on bench. Long pull — elbow past your back.'},
-      {name:'EZ Bar Curl + Hammer Curl (superset)', params:'3 × 10–12', note:'No swinging. Elbows pinned. Neutral grip hammers.'},
-      {name:'Prone Rear Delt Raise', params:'3 × 12–15', note:'Face down on incline bench. Fixes WFH posture.'},
-      {name:'Pull-Up or Assisted', params:'3 × max reps', note:'Dead hang, full range. Use rack bar if still building.'},
+      {name:'Barbell Deadlift', params:'4 sets × 4/3/2/1+', note:'Brace hard. Belt from Month 2+. Chalk helps grip. Final set AMRAP at top weight if form is solid.'},
+      {name:'Barbell Bent-Over Row', params:'4 × 8–10', note:'Pull to belly button, chest up. Retract the scapula — not a shrug. Back is warm from deadlifts.'},
+      {name:'EZ Bar Curl + Hammer Curl (superset)', params:'3 × 10–12 each', note:'Elbows pinned. No swinging. Neutral grip hammers build brachialis — critical for rugby grip strength.'},
+      {name:'Prone Rear Delt Raise', params:'3 × 12–15', note:'Lie face down on incline bench. Pulls rhomboids and rear delts. Counteracts WFH forward-head posture.'},
+      {name:'EZ Bar Upright Row', params:'3 × 10–12', note:'Grip just inside shoulder width. Pull to chin, elbows lead. Controlled descent.'},
     ]
   },
   {
     id: 'lower-hinge', day: 'Friday', type: 'Hinge', color: 'var(--gold)', icon: '🍑',
     name: 'Lower Body — Hinge + Accessories', duration: '50–60 min',
-    desc: 'Hip-hinge dominant. RDL, hip thrust, carries. Hamstrings, glutes, rugby sprint power.',
+    desc: 'Hip-dominant posterior chain. Heavy RDL loads glutes and hamstrings through full range. Farmer\'s carries build grip, core, and rugby-specific conditioning.',
     exercises: [
-      {name:'Romanian Deadlift (Barbell)', params:'4 × 8–10', note:'Heavy hinge day. More volume than Monday. Feel every rep.'},
-      {name:'Barbell Hip Thrust', params:'4 × 8–10', note:'Heavier than Monday. Add weight if form holds.'},
-      {name:'Step-Up with Weighted Vest', params:'3 × 10/leg', note:'Add 20lb vest. Brutal. Great for rugby hill running.'},
-      {name:'Dumbbell Walking Lunge', params:'3 × 10/leg', note:'Long stride. Torso upright. Garage or driveway.'},
-      {name:'Farmer\'s Carry (50s)', params:'3 × 40–50m', note:'Grab heaviest dumbbells. Walk with purpose. Core braced.'},
+      {name:'Romanian Deadlift (Barbell)', params:'4 × 8–10', note:'Heavy hinge day. Initiate by driving hips back, not bending knees. Feel every hamstring rep.'},
+      {name:'Step-Up with Weighted Vest (20 lb)', params:'3 × 10/leg', note:'Vest on throughout. Box height determines muscle emphasis. Controlled descent every rep.'},
+      {name:'Dumbbell Lunge', params:'3 × 10/leg', note:'Alternating. Torso upright, long stride. Cumulative fatigue from RDL makes these harder than Monday.'},
+      {name:'Farmer\'s Carry (45lb plates + 20lb vest)', params:'3 laps', note:'Current: 3 laps. Progression: add a lap once 3 consecutive sessions feel manageable.'},
+      {name:'Standing Calf Raise (plate edge)', params:'3 × 15–20', note:'Full range: all the way up, all the way down. Pause at the bottom stretch.'},
     ]
   },
   {
@@ -809,11 +808,11 @@ const WORKOUTS = [
 
 const HABITS = [
   {id:'sessions', label:'Completed 4 training sessions', sub:'Mon / Tue / Thu / Fri'},
-  {id:'protein', label:'Hit 220g protein every day', sub:'7/7 days — #1 rule'},
+  {id:'protein', label:'Hit 240g protein every day', sub:'7/7 days — #1 rule'},
   {id:'water', label:'1 gallon water daily', sub:'Set reminders — WFH dads forget'},
   {id:'steps', label:'8,000+ daily steps (Garmin)', sub:'Check Body Battery first'},
   {id:'weigh', label:'Monday morning weigh-in logged', sub:'Same time, after bathroom'},
-  {id:'supps', label:'Full supplement stack daily', sub:'All 8, correct timing'},
+  {id:'supps', label:'Full supplement stack daily', sub:'All 9, correct timing'},
   {id:'batch', label:'Batch cooked protein this week', sub:'Sunday — 45 min, 4 days solved'},
   {id:'wife', label:'Protected training time with wife', sub:'She is infrastructure'},
   {id:'alcohol', label:'Alcohol minimal or zero', sub:'2+ drinks = 48hr testosterone hit'},
@@ -821,18 +820,18 @@ const HABITS = [
 ];
 
 const MEALS = [
-  {time:'AM', label:'Breakfast', desc:'4–5 eggs + ground beef/steak in butter. Black coffee.'},
-  {time:'10', label:'Mid-Morning', desc:'Greek yogurt (full fat) or hard-boiled eggs.'},
-  {time:'12', label:'Lunch', desc:'Red meat + roasted veg. No bread, no bun.'},
-  {time:'PRE', label:'Pre-Workout', desc:'Whey shake + banana. 30 min before session.'},
-  {time:'POST', label:'Post-Workout', desc:'Biggest meal. Steak + rice or sweet potato + veg.'},
-  {time:'PM', label:'Evening', desc:'Cottage cheese or Greek yogurt. Gaming snack that works.'},
+  {time:'AM', label:'Breakfast', desc:'4–5 whole eggs + 6–8 oz ground beef or steak in butter. Black coffee. ~1/3 of daily protein before 9AM.'},
+  {time:'10', label:'Mid-Morning', desc:'Full-fat Greek yogurt (plain) + 2 hard-boiled eggs. Hard-boil a week\'s worth Sunday. Zero-prep snack.'},
+  {time:'12', label:'Lunch', desc:'Large portion red meat (beef, bison, or lamb) + roasted vegetables. No bread, no bun. Minimal carbs unless training immediately after.'},
+  {time:'PRE', label:'Pre-Workout', desc:'Whey shake (1 scoop) + banana. 30 min before. Small and fast — full stomach under a barbell is a bad session.'},
+  {time:'POST', label:'Post-Workout', desc:'Largest meal. 8–12 oz steak or ground beef + white rice or sweet potato + green vegetable. Muscles primed for uptake — prioritize this meal.'},
+  {time:'PM', label:'Evening', desc:'Full-fat cottage cheese or Greek yogurt. Optional: natural peanut butter or mixed nuts. Casein feeds overnight muscle protein synthesis.'},
 ];
 
 const WHEN_LIFE_HITS = [
-  {icon:'😴', color:'var(--gold)', title:'Rough Night / Sick Twin', desc:'Don\'t train. 20 min walk instead. Hit protein. Resume next scheduled day. Not losing progress — surviving.'},
-  {icon:'📅', color:'var(--blue)', title:'Missed 3–5 Days', desc:'Don\'t make it up. Don\'t cram two sessions. Just do the next scheduled workout at normal intensity.'},
-  {icon:'⚖️', color:'var(--green)', title:'Scale Stalled 2+ Weeks', desc:'Check protein first. If hitting 220g, cut 150 cal OR add 2,000 steps/day. Small adjustment, not a restart.'},
+  {icon:'😴', color:'var(--gold)', title:'Rough Night / Sick Twin', desc:'Check Garmin Body Battery. Under 30 = do not train. Take a 20 min walk. Hit protein. Resume next scheduled day. You are not losing progress — you are surviving.'},
+  {icon:'📅', color:'var(--blue)', title:'Missed 3–5 Days', desc:'Do not try to make it up. Do not cram two sessions into one. Just do the next scheduled workout at normal intensity. Catching up causes injury.'},
+  {icon:'⚖️', color:'var(--green)', title:'Scale Stalled 2+ Weeks', desc:'Not a failure. First: are you hitting 240g protein? If yes, reduce calories by 150 or add 2,000 steps/day. Small adjustment only — not a restart.'},
 ];
 
 const GARMIN_GUIDE = [
